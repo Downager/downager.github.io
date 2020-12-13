@@ -1,38 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Raspberry Pi 變身為 Seedbox 製作實錄 (PPPoE+DDNS+BT+FTP)</title>
-    <url>/2013/03/22/Raspberry-Pi-%E8%AE%8A%E8%BA%AB%E7%82%BA-Seedbox-%E8%A3%BD%E4%BD%9C%E5%AF%A6%E9%8C%84-PPPoE-DDNS-BT-FTP/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本文章大部分都是參考網路上的資源，純粹只是自己做個紀錄，內容有誤還望各位先進指教！</p>
-<h1 id="前置工作"><a href="#前置工作" class="headerlink" title="前置工作"></a>前置工作</h1><ul>
-<li>韌體版本：<a href="https://www.raspberrypi.org/downloads/" target="_blank" rel="noopener">2013-02-09-wheezy-raspbian</a></li>
-<li>格式成exFAT的隨身硬碟</li>
-</ul>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><p>第一次開機就能用 ssh 進入了<br>帳號：pi<br>密碼：raspberry</p>
-<a id="more"></a> 
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 登入後先把預設密碼改掉</span><br><span class="line">passwd</span><br><span class="line"></span><br><span class="line"># 更改鍵盤配置</span><br><span class="line">sudo dpkg-reconfigure keyboard-configuration</span><br><span class="line">&#x2F;&#x2F; ssh 底下無法使用這指令</span><br><span class="line"></span><br><span class="line"># 更改地區</span><br><span class="line">sudo dpkg-reconfigure locales</span><br><span class="line"></span><br><span class="line"># 設定時區</span><br><span class="line">sudo dpkg-reconfigure tzdata</span><br><span class="line"></span><br><span class="line"># 更新索引清單（package list）</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line"># 更新套件</span><br><span class="line">sudo apt-get -y dist-upgrade</span><br><span class="line">&#x2F;&#x2F; 這動作會耗費一段時間，可以先休息一下</span><br><span class="line"></span><br><span class="line"># 清除更新時所下載的檔案</span><br><span class="line">sudo apt-get clean</span><br><span class="line"></span><br><span class="line"># 安裝PPPoE撥號程式</span><br><span class="line">sudo apt-get install pppoeconf</span><br><span class="line"></span><br><span class="line"># 設定PPPoE</span><br><span class="line">sudo pppoeconf</span><br><span class="line">&#x2F;&#x2F; 如果不是直接接在數據機後請先跳過</span><br><span class="line"></span><br><span class="line"># 安裝no-ip</span><br><span class="line">cd &#x2F;usr&#x2F;local&#x2F;src&#x2F;</span><br><span class="line">sudo wget http:&#x2F;&#x2F;www.no-ip.com&#x2F;client&#x2F;linux&#x2F;noip-duc-linux.tar.gz</span><br><span class="line">sudo tar xf noip-duc-linux.tar.gz</span><br><span class="line">cd noip-2.1.9-1&#x2F;</span><br><span class="line">sudo make install</span><br><span class="line"># 輸入 no-ip資料</span><br><span class="line"># 建立 &#x2F;etc&#x2F;init.d&#x2F;noip2</span><br><span class="line">sudo touch &#x2F;etc&#x2F;init.d&#x2F;noip2</span><br><span class="line">sudo nano &#x2F;etc&#x2F;init.d&#x2F;noip2 </span><br><span class="line"># 將以下腳本複製進去</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#! &#x2F;bin&#x2F;sh</span><br><span class="line"># &#x2F;etc&#x2F;init.d&#x2F;noip </span><br><span class="line"></span><br><span class="line">### BEGIN INIT INFO</span><br><span class="line"># Provides:          noip</span><br><span class="line"># Required-Start:    $remote_fs $syslog</span><br><span class="line"># Required-Stop:     $remote_fs $syslog</span><br><span class="line"># Default-Start:     2 3 4 5</span><br><span class="line"># Default-Stop:      0 1 6</span><br><span class="line"># Short-Description: Simple script to start a program at boot</span><br><span class="line"># Description:       A simple script from www.stuffaboutcode.com which will start &#x2F; stop a program a boot &#x2F; shutdown.</span><br><span class="line">### END INIT INFO</span><br><span class="line"></span><br><span class="line"># If you want a command to always run, put it here</span><br><span class="line"></span><br><span class="line"># Carry out specific functions when asked to by the system</span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">  start)</span><br><span class="line">    echo &quot;Starting noip&quot;</span><br><span class="line">    # run application you want to start</span><br><span class="line">    &#x2F;usr&#x2F;local&#x2F;bin&#x2F;noip2</span><br><span class="line">    ;;</span><br><span class="line">  stop)</span><br><span class="line">    echo &quot;Stopping noip&quot;</span><br><span class="line">    # kill application you want to stop</span><br><span class="line">    killall noip2</span><br><span class="line">    ;;</span><br><span class="line">  *)</span><br><span class="line">    echo &quot;Usage: &#x2F;etc&#x2F;init.d&#x2F;noip &#123;start|stop&#125;&quot;</span><br><span class="line">    exit 1</span><br><span class="line">    ;;</span><br><span class="line">esac</span><br><span class="line"></span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 變更 script 權限</span><br><span class="line">sudo chmod 755 &#x2F;etc&#x2F;init.d&#x2F;noip2</span><br><span class="line"># 進行開機啟動</span><br><span class="line">sudo update-rc.d noip2 defaults</span><br><span class="line"># 一鍵安裝 rtorrent+rutorrent</span><br><span class="line">cd ~</span><br><span class="line">sudo wget --no-check-certificate https:&#x2F;&#x2F;blog.downager.com&#x2F;2013&#x2F;03&#x2F;22&#x2F;Raspberry-Pi-變身為-Seedbox-製作實錄-PPPoE-DDNS-BT-FTP&#x2F;rtorrent.sh</span><br><span class="line">sudo sh rtorrent.sh</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 這部分會裝很久，久到不可思議。</span><br><span class="line">&#x2F;&#x2F; # rutorrent 出問題請嘗試</span><br><span class="line">&#x2F;&#x2F; sudo rm &#x2F;home&#x2F;rtorrent&#x2F;rtorrent&#x2F;session&#x2F;rtorrent.lock</span><br><span class="line"></span><br><span class="line"># 接上硬碟，確認是否在&#x2F;dev&#x2F;sda1下</span><br><span class="line">sudo fdisk -l</span><br><span class="line"></span><br><span class="line"># 安裝exfat-fuse，讓mount支持exFAT格式</span><br><span class="line">sudo apt-get install exfat-fuse</span><br><span class="line"></span><br><span class="line"># 建立資料夾，將隨身硬碟掛載到下面</span><br><span class="line">sudo mkdir &#x2F;mnt&#x2F;extHDD</span><br><span class="line">sudo mount &#x2F;dev&#x2F;sda1 &#x2F;mnt&#x2F;extHDD&#x2F;</span><br><span class="line"></span><br><span class="line"># 確認是否正確掛載</span><br><span class="line">df -h</span><br><span class="line"></span><br><span class="line"># 開機自動掛載</span><br><span class="line">sudo nano &#x2F;etc&#x2F;fstab </span><br><span class="line"># 加入下面這行</span><br><span class="line">&#x2F;dev&#x2F;sda1       &#x2F;mnt&#x2F;extHDD     exfat-fuse      defaults        0       0</span><br><span class="line">&#x2F;&#x2F; 使用tab空格</span><br><span class="line"></span><br><span class="line"># 修改 rtorrent.rc</span><br><span class="line">sudo nano &#x2F;home&#x2F;rtorrent&#x2F;.rtorrent.rc</span><br><span class="line"># 修改預設下載位置</span><br><span class="line">directory &#x3D; &#x2F;mnt&#x2F;extHDD</span><br><span class="line"># 增加記憶體使用上限</span><br><span class="line">max_memory_usage &#x3D; 256M</span><br><span class="line"></span><br><span class="line"># 修改rutorrent conf.php</span><br><span class="line">sudo nano &#x2F;var&#x2F;rutorrent&#x2F;rutorrent&#x2F;conf&#x2F;config.php</span><br><span class="line">修改這兩項</span><br><span class="line">$scgi_port &#x3D; &quot;23876&quot;;</span><br><span class="line">$topDirectory &#x3D; &#39;&#x2F;mnt&#x2F;extHDD&#39;;</span><br><span class="line"></span><br><span class="line"># 儲存完畢後重新開機</span><br><span class="line">sudo shutdown -r now</span><br><span class="line">檢查pppoe noip ftp rtorrent rutorrent mount 是否正確運作</span><br></pre></td></tr></table></figure>
-
-<p>這記錄就到此結束了，有任何問題可以在下方留言，<br>有地方能夠更精簡也歡迎指教，感謝您的觀看。</p>
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="http://yehnan.blogspot.tw/2012/06/raspberry-pi_10.html" target="_blank" rel="noopener">Raspberry Pi基本設定、編譯核心、上網</a></li>
-<li><a href="http://kawa812.blogspot.tw/2013/02/raspberry-pi.html" target="_blank" rel="noopener">Raspberry PI 設定紀錄</a></li>
-<li><a href="http://www.stuffaboutcode.com/2012/06/raspberry-pi-run-program-at-start-up.html" target="_blank" rel="noopener">Raspberry Pi - run program at start-up</a></li>
-<li><a href="https://sourceforge.net/projects/autodl-irssi/" target="_blank" rel="noopener">autodl-irssi</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>RaspberryPi</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>[開箱] LGA771 雙路 Xeon 5160 -- 老兵不死，只是凋零</title>
     <url>/2013/06/19/%E9%96%8B%E7%AE%B1-LGA771-%E9%9B%99%E8%B7%AF-Xeon-5160-%E8%80%81%E5%85%B5%E4%B8%8D%E6%AD%BB%EF%BC%8C%E5%8F%AA%E6%98%AF%E5%87%8B%E9%9B%B6/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>沒事不要亂看東西啊，不小心就跌入坑了</p>
@@ -111,6 +79,63 @@
       </categories>
       <tags>
         <tag>開箱</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Raspberry Pi 變身為 Seedbox 製作實錄 (PPPoE+DDNS+BT+FTP)</title>
+    <url>/2013/03/22/Raspberry-Pi-%E8%AE%8A%E8%BA%AB%E7%82%BA-Seedbox-%E8%A3%BD%E4%BD%9C%E5%AF%A6%E9%8C%84-PPPoE-DDNS-BT-FTP/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本文章大部分都是參考網路上的資源，純粹只是自己做個紀錄，內容有誤還望各位先進指教！</p>
+<h1 id="前置工作"><a href="#前置工作" class="headerlink" title="前置工作"></a>前置工作</h1><ul>
+<li>韌體版本：<a href="https://www.raspberrypi.org/downloads/" target="_blank" rel="noopener">2013-02-09-wheezy-raspbian</a></li>
+<li>格式成exFAT的隨身硬碟</li>
+</ul>
+<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><p>第一次開機就能用 ssh 進入了<br>帳號：pi<br>密碼：raspberry</p>
+<a id="more"></a> 
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 登入後先把預設密碼改掉</span><br><span class="line">passwd</span><br><span class="line"></span><br><span class="line"># 更改鍵盤配置</span><br><span class="line">sudo dpkg-reconfigure keyboard-configuration</span><br><span class="line">&#x2F;&#x2F; ssh 底下無法使用這指令</span><br><span class="line"></span><br><span class="line"># 更改地區</span><br><span class="line">sudo dpkg-reconfigure locales</span><br><span class="line"></span><br><span class="line"># 設定時區</span><br><span class="line">sudo dpkg-reconfigure tzdata</span><br><span class="line"></span><br><span class="line"># 更新索引清單（package list）</span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line"># 更新套件</span><br><span class="line">sudo apt-get -y dist-upgrade</span><br><span class="line">&#x2F;&#x2F; 這動作會耗費一段時間，可以先休息一下</span><br><span class="line"></span><br><span class="line"># 清除更新時所下載的檔案</span><br><span class="line">sudo apt-get clean</span><br><span class="line"></span><br><span class="line"># 安裝PPPoE撥號程式</span><br><span class="line">sudo apt-get install pppoeconf</span><br><span class="line"></span><br><span class="line"># 設定PPPoE</span><br><span class="line">sudo pppoeconf</span><br><span class="line">&#x2F;&#x2F; 如果不是直接接在數據機後請先跳過</span><br><span class="line"></span><br><span class="line"># 安裝no-ip</span><br><span class="line">cd &#x2F;usr&#x2F;local&#x2F;src&#x2F;</span><br><span class="line">sudo wget http:&#x2F;&#x2F;www.no-ip.com&#x2F;client&#x2F;linux&#x2F;noip-duc-linux.tar.gz</span><br><span class="line">sudo tar xf noip-duc-linux.tar.gz</span><br><span class="line">cd noip-2.1.9-1&#x2F;</span><br><span class="line">sudo make install</span><br><span class="line"># 輸入 no-ip資料</span><br><span class="line"># 建立 &#x2F;etc&#x2F;init.d&#x2F;noip2</span><br><span class="line">sudo touch &#x2F;etc&#x2F;init.d&#x2F;noip2</span><br><span class="line">sudo nano &#x2F;etc&#x2F;init.d&#x2F;noip2 </span><br><span class="line"># 將以下腳本複製進去</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#! &#x2F;bin&#x2F;sh</span><br><span class="line"># &#x2F;etc&#x2F;init.d&#x2F;noip </span><br><span class="line"></span><br><span class="line">### BEGIN INIT INFO</span><br><span class="line"># Provides:          noip</span><br><span class="line"># Required-Start:    $remote_fs $syslog</span><br><span class="line"># Required-Stop:     $remote_fs $syslog</span><br><span class="line"># Default-Start:     2 3 4 5</span><br><span class="line"># Default-Stop:      0 1 6</span><br><span class="line"># Short-Description: Simple script to start a program at boot</span><br><span class="line"># Description:       A simple script from www.stuffaboutcode.com which will start &#x2F; stop a program a boot &#x2F; shutdown.</span><br><span class="line">### END INIT INFO</span><br><span class="line"></span><br><span class="line"># If you want a command to always run, put it here</span><br><span class="line"></span><br><span class="line"># Carry out specific functions when asked to by the system</span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">  start)</span><br><span class="line">    echo &quot;Starting noip&quot;</span><br><span class="line">    # run application you want to start</span><br><span class="line">    &#x2F;usr&#x2F;local&#x2F;bin&#x2F;noip2</span><br><span class="line">    ;;</span><br><span class="line">  stop)</span><br><span class="line">    echo &quot;Stopping noip&quot;</span><br><span class="line">    # kill application you want to stop</span><br><span class="line">    killall noip2</span><br><span class="line">    ;;</span><br><span class="line">  *)</span><br><span class="line">    echo &quot;Usage: &#x2F;etc&#x2F;init.d&#x2F;noip &#123;start|stop&#125;&quot;</span><br><span class="line">    exit 1</span><br><span class="line">    ;;</span><br><span class="line">esac</span><br><span class="line"></span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 變更 script 權限</span><br><span class="line">sudo chmod 755 &#x2F;etc&#x2F;init.d&#x2F;noip2</span><br><span class="line"># 進行開機啟動</span><br><span class="line">sudo update-rc.d noip2 defaults</span><br><span class="line"># 一鍵安裝 rtorrent+rutorrent</span><br><span class="line">cd ~</span><br><span class="line">sudo wget --no-check-certificate https:&#x2F;&#x2F;blog.downager.com&#x2F;2013&#x2F;03&#x2F;22&#x2F;Raspberry-Pi-變身為-Seedbox-製作實錄-PPPoE-DDNS-BT-FTP&#x2F;rtorrent.sh</span><br><span class="line">sudo sh rtorrent.sh</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 這部分會裝很久，久到不可思議。</span><br><span class="line">&#x2F;&#x2F; # rutorrent 出問題請嘗試</span><br><span class="line">&#x2F;&#x2F; sudo rm &#x2F;home&#x2F;rtorrent&#x2F;rtorrent&#x2F;session&#x2F;rtorrent.lock</span><br><span class="line"></span><br><span class="line"># 接上硬碟，確認是否在&#x2F;dev&#x2F;sda1下</span><br><span class="line">sudo fdisk -l</span><br><span class="line"></span><br><span class="line"># 安裝exfat-fuse，讓mount支持exFAT格式</span><br><span class="line">sudo apt-get install exfat-fuse</span><br><span class="line"></span><br><span class="line"># 建立資料夾，將隨身硬碟掛載到下面</span><br><span class="line">sudo mkdir &#x2F;mnt&#x2F;extHDD</span><br><span class="line">sudo mount &#x2F;dev&#x2F;sda1 &#x2F;mnt&#x2F;extHDD&#x2F;</span><br><span class="line"></span><br><span class="line"># 確認是否正確掛載</span><br><span class="line">df -h</span><br><span class="line"></span><br><span class="line"># 開機自動掛載</span><br><span class="line">sudo nano &#x2F;etc&#x2F;fstab </span><br><span class="line"># 加入下面這行</span><br><span class="line">&#x2F;dev&#x2F;sda1       &#x2F;mnt&#x2F;extHDD     exfat-fuse      defaults        0       0</span><br><span class="line">&#x2F;&#x2F; 使用tab空格</span><br><span class="line"></span><br><span class="line"># 修改 rtorrent.rc</span><br><span class="line">sudo nano &#x2F;home&#x2F;rtorrent&#x2F;.rtorrent.rc</span><br><span class="line"># 修改預設下載位置</span><br><span class="line">directory &#x3D; &#x2F;mnt&#x2F;extHDD</span><br><span class="line"># 增加記憶體使用上限</span><br><span class="line">max_memory_usage &#x3D; 256M</span><br><span class="line"></span><br><span class="line"># 修改rutorrent conf.php</span><br><span class="line">sudo nano &#x2F;var&#x2F;rutorrent&#x2F;rutorrent&#x2F;conf&#x2F;config.php</span><br><span class="line">修改這兩項</span><br><span class="line">$scgi_port &#x3D; &quot;23876&quot;;</span><br><span class="line">$topDirectory &#x3D; &#39;&#x2F;mnt&#x2F;extHDD&#39;;</span><br><span class="line"></span><br><span class="line"># 儲存完畢後重新開機</span><br><span class="line">sudo shutdown -r now</span><br><span class="line">檢查pppoe noip ftp rtorrent rutorrent mount 是否正確運作</span><br></pre></td></tr></table></figure>
+
+<p>這記錄就到此結束了，有任何問題可以在下方留言，<br>有地方能夠更精簡也歡迎指教，感謝您的觀看。</p>
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
+<li><a href="http://yehnan.blogspot.tw/2012/06/raspberry-pi_10.html" target="_blank" rel="noopener">Raspberry Pi基本設定、編譯核心、上網</a></li>
+<li><a href="http://kawa812.blogspot.tw/2013/02/raspberry-pi.html" target="_blank" rel="noopener">Raspberry PI 設定紀錄</a></li>
+<li><a href="http://www.stuffaboutcode.com/2012/06/raspberry-pi-run-program-at-start-up.html" target="_blank" rel="noopener">Raspberry Pi - run program at start-up</a></li>
+<li><a href="https://sourceforge.net/projects/autodl-irssi/" target="_blank" rel="noopener">autodl-irssi</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>RaspberryPi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[網路] 集線器 (hub) 與交換器 (switch) 的差別</title>
+    <url>/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/</url>
+    <content><![CDATA[<h3 id="集線器-Hub"><a href="#集線器-Hub" class="headerlink" title="集線器 - Hub"></a>集線器 - Hub</h3><p><code>Hub</code>是屬於 <code>Layer 1</code> （實體層）的設備，所有資料只會視為電子流，只做洪泛、沖刷 <code>(flood)</code>的動作。<br>另外，由於 Hub 也有訊號增益的功能，所以能將每個 Port 視為一個 <code>Repeater</code>。</p>
+<img src="/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/diff_001.gif" class="">
+
+<a id="more"></a> 
+<p>這張圖我們可以看到，Hub 會將資料沖刷到每個 Port 造成<code>頻寬壅塞</code>，故集線器只適合用於<code>臨時串接</code>。</p>
+<h3 id="交換器-Switch"><a href="#交換器-Switch" class="headerlink" title="交換器 - Switch"></a>交換器 - Switch</h3><p><code>Switch</code> 則是 <code>Layer 2</code> （資料鏈結層）的設備，L2 的設備最大的不同是他會以學習的方式記錄每一個 Port 底下設備的 <code>Mac Address</code>，再根據 <code>Mac Address Table</code> 內的資料選擇要將封包轉發至哪個 Port。</p>
+<img src="/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/diff_002.gif" class="">
+
+
+<p><strong>下圖為 Cisco Switch 的 Mac Address Table</strong></p>
+<img src="/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/diff_003.jpg" class="">
+
+
+<p>可以看到學習到的 <code>MAC-Address</code> 分別隸屬於哪個 Port，Switch 會根據這張表格轉發封包到對應的 Port</p>
+]]></content>
+      <categories>
+        <category>Networking</category>
+      </categories>
+      <tags>
+        <tag>網路</tag>
       </tags>
   </entry>
   <entry>
@@ -228,31 +253,6 @@
       </tags>
   </entry>
   <entry>
-    <title>[網路] 集線器 (hub) 與交換器 (switch) 的差別</title>
-    <url>/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/</url>
-    <content><![CDATA[<h3 id="集線器-Hub"><a href="#集線器-Hub" class="headerlink" title="集線器 - Hub"></a>集線器 - Hub</h3><p><code>Hub</code>是屬於 <code>Layer 1</code> （實體層）的設備，所有資料只會視為電子流，只做洪泛、沖刷 <code>(flood)</code>的動作。<br>另外，由於 Hub 也有訊號增益的功能，所以能將每個 Port 視為一個 <code>Repeater</code>。</p>
-<img src="/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/diff_001.gif" class="">
-
-<a id="more"></a> 
-<p>這張圖我們可以看到，Hub 會將資料沖刷到每個 Port 造成<code>頻寬壅塞</code>，故集線器只適合用於<code>臨時串接</code>。</p>
-<h3 id="交換器-Switch"><a href="#交換器-Switch" class="headerlink" title="交換器 - Switch"></a>交換器 - Switch</h3><p><code>Switch</code> 則是 <code>Layer 2</code> （資料鏈結層）的設備，L2 的設備最大的不同是他會以學習的方式記錄每一個 Port 底下設備的 <code>Mac Address</code>，再根據 <code>Mac Address Table</code> 內的資料選擇要將封包轉發至哪個 Port。</p>
-<img src="/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/diff_002.gif" class="">
-
-
-<p><strong>下圖為 Cisco Switch 的 Mac Address Table</strong></p>
-<img src="/2013/07/01/%E7%B6%B2%E8%B7%AF-%E9%9B%86%E7%B7%9A%E5%99%A8-hub-%E8%88%87%E4%BA%A4%E6%8F%9B%E5%99%A8-switch-%E7%9A%84%E5%B7%AE%E5%88%A5/diff_003.jpg" class="">
-
-
-<p>可以看到學習到的 <code>MAC-Address</code> 分別隸屬於哪個 Port，Switch 會根據這張表格轉發封包到對應的 Port</p>
-]]></content>
-      <categories>
-        <category>Networking</category>
-      </categories>
-      <tags>
-        <tag>網路</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>[RouterOS] 每日自動備份設定檔 Script</title>
     <url>/2013/09/13/RouterOS-%E6%AF%8F%E6%97%A5%E8%87%AA%E5%8B%95%E5%82%99%E4%BB%BD%E8%A8%AD%E5%AE%9A%E6%AA%94-Script/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>為了避免設備無預警掛點，排程備份設定檔是必須的工作，<br>若要使用本腳本，請預先配置好 <code>Tools/Email</code>，謝謝</p>
@@ -321,68 +321,6 @@
       <tags>
         <tag>RouterOS</tag>
         <tag>Script</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[RouterOS] 將特定流量導向至VPN的作法 (策略路由)</title>
-    <url>/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>　　日本、中國有許多資源常常只有開放給國內，對海外 IP 採取封鎖狀態，這是通常都會使用 VPN 來做翻牆，但其他國內流量也被強迫導向至海外 VPN ，因此拖慢了網路速度，這時使用策略路由就能完美解決囉！</p>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><ul>
-<li>新增一個 <code>VPN Interface</code>
-
-</li>
-</ul>
-<a id="more"></a> 
-
-<ul>
-<li>在 <code>IP/Firewall</code> 底下建立 <code>Address List</code> ，以後方便維護</li>
-</ul>
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_002.jpg" class="">
-
-
-<ul>
-<li>新增 <code>Mangle</code> ，標記路由</li>
-</ul>
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_003.jpg" class="">
-
-
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_004.jpg" class="">
-
-
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_005.jpg" class="">
-
-
-<ul>
-<li>新增 <code>NAT</code>，沒 NAT 會出不去的</li>
-</ul>
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_006.jpg" class="">
-
-
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_007.jpg" class="">
-
-
-<ul>
-<li>新增路由 <code>IP/Routes</code></li>
-</ul>
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_008.jpg" class="">
-
-
-<p><strong>完成！</strong></p>
-<ul>
-<li>使用 <code>Traceroute</code> 驗證一下</li>
-</ul>
-<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_009.jpg" class="">
-
-
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="https://www.mobile01.com/topicdetail.php?f=110&t=3205444&p=33#42935068#42935068" target="_blank" rel="noopener">[研究所] MikroTik RouterOS 學習 (持續更新)</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Networking</category>
-      </categories>
-      <tags>
-        <tag>RouterOS</tag>
       </tags>
   </entry>
   <entry>
@@ -500,6 +438,97 @@
       </tags>
   </entry>
   <entry>
+    <title>[RouterOS] 將特定流量導向至VPN的作法 (策略路由)</title>
+    <url>/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>　　日本、中國有許多資源常常只有開放給國內，對海外 IP 採取封鎖狀態，這是通常都會使用 VPN 來做翻牆，但其他國內流量也被強迫導向至海外 VPN ，因此拖慢了網路速度，這時使用策略路由就能完美解決囉！</p>
+<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><ul>
+<li>新增一個 <code>VPN Interface</code>
+
+</li>
+</ul>
+<a id="more"></a> 
+
+<ul>
+<li>在 <code>IP/Firewall</code> 底下建立 <code>Address List</code> ，以後方便維護</li>
+</ul>
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_002.jpg" class="">
+
+
+<ul>
+<li>新增 <code>Mangle</code> ，標記路由</li>
+</ul>
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_003.jpg" class="">
+
+
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_004.jpg" class="">
+
+
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_005.jpg" class="">
+
+
+<ul>
+<li>新增 <code>NAT</code>，沒 NAT 會出不去的</li>
+</ul>
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_006.jpg" class="">
+
+
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_007.jpg" class="">
+
+
+<ul>
+<li>新增路由 <code>IP/Routes</code></li>
+</ul>
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_008.jpg" class="">
+
+
+<p><strong>完成！</strong></p>
+<ul>
+<li>使用 <code>Traceroute</code> 驗證一下</li>
+</ul>
+<img src="/2014/01/05/RouterOS-%E5%B0%87%E7%89%B9%E5%AE%9A%E6%B5%81%E9%87%8F%E5%B0%8E%E5%90%91%E8%87%B3VPN%E7%9A%84%E4%BD%9C%E6%B3%95-%E7%AD%96%E7%95%A5%E8%B7%AF%E7%94%B1/PolicyRouting_009.jpg" class="">
+
+
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
+<li><a href="https://www.mobile01.com/topicdetail.php?f=110&t=3205444&p=33#42935068#42935068" target="_blank" rel="noopener">[研究所] MikroTik RouterOS 學習 (持續更新)</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Networking</category>
+      </categories>
+      <tags>
+        <tag>RouterOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[Raspberry Pi] 利用 syslog-ng 收取 RouterOS 的 Log</title>
+    <url>/2017/03/22/Raspberry-Pi-%E5%88%A9%E7%94%A8-syslog-ng-%E6%94%B6%E5%8F%96-RouterOS-%E7%9A%84-Log/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近剛好有將 Syslog 備存的需求，就用擱置在旁的 Raspberry Pi 來當 Syslog Server 吧！</p>
+<h1 id="操作準備"><a href="#操作準備" class="headerlink" title="操作準備"></a>操作準備</h1><p>版本：<a href="http://dietpi.com/downloads/images/DietPi_RPi-armv6-%28Jessie%29.7z" target="_blank" rel="noopener">DietPi_v145_RPi-armv6-(Jessie)</a></p>
+<p>燒錄進記憶卡後開機並將基本設定完畢，本次教學會略過 DietPi 的基礎設定。</p>
+<h1 id="本文"><a href="#本文" class="headerlink" title="本文"></a>本文</h1><ul>
+<li>安裝 <code>syslog-ng</code><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# apt-get install syslog-ng</span><br></pre></td></tr></table></figure>
+<a id="more"></a> </li>
+<li>編輯 <code>syslog-ng</code> 的設定檔<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# nano &#x2F;etc&#x2F;syslog-ng&#x2F;syslog-ng.conf</span><br></pre></td></tr></table></figure></li>
+<li>在 <code>SOURCES</code> 前貼上這段後存檔<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Accept connection on UDP</span><br><span class="line">source s_net &#123; udp (); &#125;;</span><br><span class="line"># MIKROTIK ###########</span><br><span class="line"># Add Filter to add our mikroti</span><br><span class="line">filter f_mikrotik &#123; host( &quot;Your_Router_IP_Addr&quot; ); &#125;;</span><br><span class="line"># Add destination file where logs will be stored</span><br><span class="line">#destination df_mikrotik &#123; file(&quot;&#x2F;var&#x2F;log&#x2F;mikrotik.log&quot;); &#125;;</span><br><span class="line">log &#123; source ( s_net ); filter( f_mikrotik ); destination ( df_mikrotik ); &#125;;</span><br><span class="line">destination df_mikrotik &#123;</span><br><span class="line">file(&quot;&#x2F;var&#x2F;log&#x2F;mikrotik&#x2F;mikrotik.$&#123;YEAR&#125;.$&#123;MONTH&#125;.$&#123;DAY&#125;.log&quot;</span><br><span class="line"># template(&quot;$&#123;HOUR&#125;:$&#123;MIN&#125;:$&#123;SEC&#125; $&#123;HOST&#125; $&#123;MSG&#125; $&#123;MSG&#125;\n&quot;)</span><br><span class="line">template-escape(no));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>在 <code>/var/log</code> 下新增 <code>mikrotik</code> 資料夾<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# mkdir &#x2F;var&#x2F;log&#x2F;mikrotik</span><br></pre></td></tr></table></figure></li>
+<li>重新啟動 syslog-ng 服務來套用新的設定檔<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# service syslog-ng restart</span><br></pre></td></tr></table></figure></li>
+<li>將 syslog-ng 設定成開機自動啟動<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# update-rc.d syslog-ng defaults</span><br></pre></td></tr></table></figure></li>
+<li>重新開機<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# reboot</span><br></pre></td></tr></table></figure></li>
+<li>確認 syslog-ng 是否有自動啟動<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# htop</span><br></pre></td></tr></table></figure></li>
+<li>檢查 Log 是否有正確進到 Syslog Server<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# tail -f &#x2F;var&#x2F;log&#x2F;mikrotik&#x2F;mikrotik.YYYY.MM.DD.log</span><br></pre></td></tr></table></figure>
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1></li>
+<li><a href="https://aacable.wordpress.com/tag/howto-send-mikrotik-logs-to-remote-syslog-server/" target="_blank" rel="noopener">Howto Save Mikrotik Logs to Remote SYSLOG Server</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>RaspberryPi</tag>
+        <tag>RouterOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[RouterOS] Stateless Address Autoconfiguration (SLAAC) + Stateless DHCPv6 配置方法</title>
     <url>/2014/11/13/RouterOS-Stateless-Address-Autoconfiguration-SLAAC-Stateless-DHCPv6-%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>　　之前已經將 <a href="http://downager.blogspot.tw/2013/09/routeros-hinet-ipv6-dual-stack.html" target="_blank" rel="noopener">Hinet IPv6 Dual Stack</a> 給配置完畢了，接下來要使用 SLAAC + Stateless DHCPv6 來配置 IPv6 Address 及 IPv6 DNS Server。</p>
@@ -539,35 +568,6 @@
         <tag>網路</tag>
         <tag>RouterOS</tag>
         <tag>DHCPv6</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[Raspberry Pi] 利用 syslog-ng 收取 RouterOS 的 Log</title>
-    <url>/2017/03/22/Raspberry-Pi-%E5%88%A9%E7%94%A8-syslog-ng-%E6%94%B6%E5%8F%96-RouterOS-%E7%9A%84-Log/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近剛好有將 Syslog 備存的需求，就用擱置在旁的 Raspberry Pi 來當 Syslog Server 吧！</p>
-<h1 id="操作準備"><a href="#操作準備" class="headerlink" title="操作準備"></a>操作準備</h1><p>版本：<a href="http://dietpi.com/downloads/images/DietPi_RPi-armv6-%28Jessie%29.7z" target="_blank" rel="noopener">DietPi_v145_RPi-armv6-(Jessie)</a></p>
-<p>燒錄進記憶卡後開機並將基本設定完畢，本次教學會略過 DietPi 的基礎設定。</p>
-<h1 id="本文"><a href="#本文" class="headerlink" title="本文"></a>本文</h1><ul>
-<li>安裝 <code>syslog-ng</code><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# apt-get install syslog-ng</span><br></pre></td></tr></table></figure>
-<a id="more"></a> </li>
-<li>編輯 <code>syslog-ng</code> 的設定檔<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# nano &#x2F;etc&#x2F;syslog-ng&#x2F;syslog-ng.conf</span><br></pre></td></tr></table></figure></li>
-<li>在 <code>SOURCES</code> 前貼上這段後存檔<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Accept connection on UDP</span><br><span class="line">source s_net &#123; udp (); &#125;;</span><br><span class="line"># MIKROTIK ###########</span><br><span class="line"># Add Filter to add our mikroti</span><br><span class="line">filter f_mikrotik &#123; host( &quot;Your_Router_IP_Addr&quot; ); &#125;;</span><br><span class="line"># Add destination file where logs will be stored</span><br><span class="line">#destination df_mikrotik &#123; file(&quot;&#x2F;var&#x2F;log&#x2F;mikrotik.log&quot;); &#125;;</span><br><span class="line">log &#123; source ( s_net ); filter( f_mikrotik ); destination ( df_mikrotik ); &#125;;</span><br><span class="line">destination df_mikrotik &#123;</span><br><span class="line">file(&quot;&#x2F;var&#x2F;log&#x2F;mikrotik&#x2F;mikrotik.$&#123;YEAR&#125;.$&#123;MONTH&#125;.$&#123;DAY&#125;.log&quot;</span><br><span class="line"># template(&quot;$&#123;HOUR&#125;:$&#123;MIN&#125;:$&#123;SEC&#125; $&#123;HOST&#125; $&#123;MSG&#125; $&#123;MSG&#125;\n&quot;)</span><br><span class="line">template-escape(no));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>在 <code>/var/log</code> 下新增 <code>mikrotik</code> 資料夾<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# mkdir &#x2F;var&#x2F;log&#x2F;mikrotik</span><br></pre></td></tr></table></figure></li>
-<li>重新啟動 syslog-ng 服務來套用新的設定檔<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# service syslog-ng restart</span><br></pre></td></tr></table></figure></li>
-<li>將 syslog-ng 設定成開機自動啟動<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# update-rc.d syslog-ng defaults</span><br></pre></td></tr></table></figure></li>
-<li>重新開機<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# reboot</span><br></pre></td></tr></table></figure></li>
-<li>確認 syslog-ng 是否有自動啟動<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# htop</span><br></pre></td></tr></table></figure></li>
-<li>檢查 Log 是否有正確進到 Syslog Server<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@DietPi:~# tail -f &#x2F;var&#x2F;log&#x2F;mikrotik&#x2F;mikrotik.YYYY.MM.DD.log</span><br></pre></td></tr></table></figure>
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1></li>
-<li><a href="https://aacable.wordpress.com/tag/howto-send-mikrotik-logs-to-remote-syslog-server/" target="_blank" rel="noopener">Howto Save Mikrotik Logs to Remote SYSLOG Server</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>RaspberryPi</tag>
-        <tag>RouterOS</tag>
       </tags>
   </entry>
   <entry>
@@ -678,43 +678,6 @@
       </tags>
   </entry>
   <entry>
-    <title>[Ubuntu] 搭建 Socks5 &amp; PPTP 代理 with Google BBR</title>
-    <url>/2017/06/01/Ubuntu-%E6%90%AD%E5%BB%BA-Socks5-amp-PPTP-%E4%BB%A3%E7%90%86-with-Google-BBR/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近測了 Google BBR 搭配 Socks5 的效果，速度簡直飛快，留個文章記錄安裝過程</p>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><p>安裝環境：Ubuntu 16.04</p>
-<h2 id="首先更新下系統"><a href="#首先更新下系統" class="headerlink" title="首先更新下系統"></a>首先更新下系統</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt-get update &amp;&amp; apt-get dist-upgrade -y</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a> 
-
-<h2 id="安裝-Google-BBR"><a href="#安裝-Google-BBR" class="headerlink" title="安裝 Google BBR"></a>安裝 Google BBR</h2><p>使用腳本：<a href="https://teddysun.com/489.html" target="_blank" rel="noopener">一键安装最新内核并开启 BBR 脚本</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget --no-check-certificate https:&#x2F;&#x2F;github.com&#x2F;teddysun&#x2F;across&#x2F;raw&#x2F;master&#x2F;bbr.sh</span><br><span class="line">chmod +x bbr.sh</span><br><span class="line">.&#x2F;bbr.sh</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="檢查-BBR-模塊是否啟用"><a href="#檢查-BBR-模塊是否啟用" class="headerlink" title="檢查 BBR 模塊是否啟用"></a>檢查 BBR 模塊是否啟用</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sysctl net.ipv4.tcp_available_congestion_control</span><br><span class="line">sysctl net.ipv4.tcp_congestion_control</span><br><span class="line">lsmod | grep bbr</span><br></pre></td></tr></table></figure>
-<p>返回的值有 BBR 字樣就代表啟動成功</p>
-<h2 id="安裝-Dante-Socks5-Server"><a href="#安裝-Dante-Socks5-Server" class="headerlink" title="安裝 Dante Socks5 Server"></a>安裝 Dante Socks5 Server</h2><p>使用腳本：<a href="https://github.com/Lozy/danted" target="_blank" rel="noopener">Dante socks5 server</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget --no-check-certificate https:&#x2F;&#x2F;raw.github.com&#x2F;Lozy&#x2F;danted&#x2F;master&#x2F;install.sh -O install.sh</span><br><span class="line">bash install.sh --port&#x3D;30678 --user&#x3D;Downager --passwd&#x3D;1234 --whitelist&#x3D;&quot;example.com&quot;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="安裝-PPTP-Server"><a href="#安裝-PPTP-Server" class="headerlink" title="安裝 PPTP Server"></a>安裝 PPTP Server</h2><p>使用腳本：<a href="http://mednoter.com/install-pptp-in-ubuntu.html" target="_blank" rel="noopener">Ubuntu 一键部署 PPTP</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;raw.github.com&#x2F;viljoviitanen&#x2F;setup-simple-pptp-vpn&#x2F;master&#x2F;setup.sh</span><br><span class="line">sh setup.sh</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="安裝完畢後到-etc-ppp-chap-secrets-配置一下用戶及密碼"><a href="#安裝完畢後到-etc-ppp-chap-secrets-配置一下用戶及密碼" class="headerlink" title="安裝完畢後到 /etc/ppp/chap-secrets 配置一下用戶及密碼"></a>安裝完畢後到 <code>/etc/ppp/chap-secrets</code> 配置一下用戶及密碼</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nano &#x2F;etc&#x2F;ppp&#x2F;chap-secrets</span><br><span class="line"></span><br><span class="line">    # Secrets for authentication using CHAP</span><br><span class="line">    # client server secret IP addresses</span><br><span class="line">    username pptpd password *</span><br></pre></td></tr></table></figure>
-
-<h2 id="保存後，退出重啟-pptp-服務"><a href="#保存後，退出重啟-pptp-服務" class="headerlink" title="保存後，退出重啟 pptp 服務"></a>保存後，退出重啟 pptp 服務</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">service pptpd restart</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Ubuntu</tag>
-        <tag>Proxy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>[Ubuntu] 使用 Github 架設 Octopress Blog</title>
     <url>/2017/06/01/Ubuntu-%E4%BD%BF%E7%94%A8-Github-%E6%9E%B6%E8%A8%AD-Octopress-Blog/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>　　最近寫 blog 時發現用 Markdown 語法來寫作效率快很多，可以省去一些無謂的排版精力，無奈 Blogger 不支援 Markdown，在網路上搜尋了一番找到了 Octopress，然而我並沒有使用 Github 的經驗，所以在這邊記錄一下我當初所遇到的問題。</p>
@@ -778,6 +741,43 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       <tags>
         <tag>Ubuntu</tag>
         <tag>Octopress</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[Ubuntu] 搭建 Socks5 &amp; PPTP 代理 with Google BBR</title>
+    <url>/2017/06/01/Ubuntu-%E6%90%AD%E5%BB%BA-Socks5-amp-PPTP-%E4%BB%A3%E7%90%86-with-Google-BBR/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近測了 Google BBR 搭配 Socks5 的效果，速度簡直飛快，留個文章記錄安裝過程</p>
+<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><p>安裝環境：Ubuntu 16.04</p>
+<h2 id="首先更新下系統"><a href="#首先更新下系統" class="headerlink" title="首先更新下系統"></a>首先更新下系統</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt-get update &amp;&amp; apt-get dist-upgrade -y</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a> 
+
+<h2 id="安裝-Google-BBR"><a href="#安裝-Google-BBR" class="headerlink" title="安裝 Google BBR"></a>安裝 Google BBR</h2><p>使用腳本：<a href="https://teddysun.com/489.html" target="_blank" rel="noopener">一键安装最新内核并开启 BBR 脚本</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget --no-check-certificate https:&#x2F;&#x2F;github.com&#x2F;teddysun&#x2F;across&#x2F;raw&#x2F;master&#x2F;bbr.sh</span><br><span class="line">chmod +x bbr.sh</span><br><span class="line">.&#x2F;bbr.sh</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="檢查-BBR-模塊是否啟用"><a href="#檢查-BBR-模塊是否啟用" class="headerlink" title="檢查 BBR 模塊是否啟用"></a>檢查 BBR 模塊是否啟用</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sysctl net.ipv4.tcp_available_congestion_control</span><br><span class="line">sysctl net.ipv4.tcp_congestion_control</span><br><span class="line">lsmod | grep bbr</span><br></pre></td></tr></table></figure>
+<p>返回的值有 BBR 字樣就代表啟動成功</p>
+<h2 id="安裝-Dante-Socks5-Server"><a href="#安裝-Dante-Socks5-Server" class="headerlink" title="安裝 Dante Socks5 Server"></a>安裝 Dante Socks5 Server</h2><p>使用腳本：<a href="https://github.com/Lozy/danted" target="_blank" rel="noopener">Dante socks5 server</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget --no-check-certificate https:&#x2F;&#x2F;raw.github.com&#x2F;Lozy&#x2F;danted&#x2F;master&#x2F;install.sh -O install.sh</span><br><span class="line">bash install.sh --port&#x3D;30678 --user&#x3D;Downager --passwd&#x3D;1234 --whitelist&#x3D;&quot;example.com&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="安裝-PPTP-Server"><a href="#安裝-PPTP-Server" class="headerlink" title="安裝 PPTP Server"></a>安裝 PPTP Server</h2><p>使用腳本：<a href="http://mednoter.com/install-pptp-in-ubuntu.html" target="_blank" rel="noopener">Ubuntu 一键部署 PPTP</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;raw.github.com&#x2F;viljoviitanen&#x2F;setup-simple-pptp-vpn&#x2F;master&#x2F;setup.sh</span><br><span class="line">sh setup.sh</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="安裝完畢後到-etc-ppp-chap-secrets-配置一下用戶及密碼"><a href="#安裝完畢後到-etc-ppp-chap-secrets-配置一下用戶及密碼" class="headerlink" title="安裝完畢後到 /etc/ppp/chap-secrets 配置一下用戶及密碼"></a>安裝完畢後到 <code>/etc/ppp/chap-secrets</code> 配置一下用戶及密碼</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nano &#x2F;etc&#x2F;ppp&#x2F;chap-secrets</span><br><span class="line"></span><br><span class="line">    # Secrets for authentication using CHAP</span><br><span class="line">    # client server secret IP addresses</span><br><span class="line">    username pptpd password *</span><br></pre></td></tr></table></figure>
+
+<h2 id="保存後，退出重啟-pptp-服務"><a href="#保存後，退出重啟-pptp-服務" class="headerlink" title="保存後，退出重啟 pptp 服務"></a>保存後，退出重啟 pptp 服務</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">service pptpd restart</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Ubuntu</tag>
+        <tag>Proxy</tag>
       </tags>
   </entry>
   <entry>
@@ -917,6 +917,62 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       </tags>
   </entry>
   <entry>
+    <title>[Windows] 解決 Win10 安裝時無法選擇版本的問題</title>
+    <url>/2017/07/30/Windows-%E8%A7%A3%E6%B1%BA-Win10-%E5%AE%89%E8%A3%9D%E6%99%82%E7%84%A1%E6%B3%95%E9%81%B8%E6%93%87%E7%89%88%E6%9C%AC%E7%9A%84%E5%95%8F%E9%A1%8C/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>現在新的套裝主機都已經把 Windows 序號內置進 BIOS 裡了，導致全新安裝系統時會自動選擇和序號匹配的版本，無法自行決定要安裝哪個版本。</p>
+<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><ul>
+<li>將 Windows 安裝 iso 寫進隨身碟裡，通常是使用 Rufus</li>
+<li><code>X:\sources\</code> 底下使用記事本新增 <code>ei.cfg</code></li>
+<li>在 <code>ei.cfg</code> 內新增以下內容<a id="more"></a> 
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[EditionID]</span><br><span class="line"></span><br><span class="line">[Channel]</span><br><span class="line">Retail</span><br><span class="line">[VL]</span><br><span class="line">0</span><br></pre></td></tr></table></figure></li>
+<li>保存退出，重開機以後選單就會自動出來了</li>
+</ul>
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
+<li><a href="https://msdn.microsoft.com/zh-tw/library/hh824952.aspx" target="_blank" rel="noopener">Windows 安裝程式版本設定和產品識別碼檔案 EI.cfg和 PID.txt</a></li>
+<li><a href="http://club.lenovo.cn/detail/1935300/12916636" target="_blank" rel="noopener">重装Win10专业版（防止出现无法选择版本从而默认安装家庭版的情况</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Windows</category>
+      </categories>
+      <tags>
+        <tag>Windows</tag>
+        <tag>隨筆</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[心得] uTorrent 無痛轉 qBittorrent 工具介紹</title>
+    <url>/2018/03/15/%E5%BF%83%E5%BE%97-uTorrent-%E7%84%A1%E7%97%9B%E8%BD%89-qBittorrent-%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%B4%B9/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近 uTorrent 爆出 3.x 版本 WebUI 有漏洞，導致各大 PT 站不再支援 uTorrent 3.x<br>需要尋找一個無痛轉換的工具，在網上找了找總算找到，分享給大家</p>
+<h1 id="注意事項"><a href="#注意事項" class="headerlink" title="注意事項"></a>注意事項</h1><ol>
+<li>種子名不同但內容相同的種子會重新下載，多站輔種的記得先限速 1KB</li>
+<li>種子路徑有 Junction Link 的會有問題，請多注意</li>
+<li>下載中的種子也會遷移，建議是都完種了再來搬家</li>
+<li>搬家前可以把 <code>未完成檔案加上 .!qb 副檔名</code> 功能給拿掉，避免意外</li>
+<li>謹慎操作，隨手備份，本人不為你的檔案負任何責任</li>
+</ol>
+<a id="more"></a> 
+
+<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><ol>
+<li>完全關閉 uTorrent 以及 qBittorrent 客戶端</li>
+<li>下載 <a href="\2018\03\15\心得-uTorrent-無痛轉-qBittorrent-工具介紹\ut2qt_20150911.7z">ut2qt.exe</a>，不能運作請下載 <a href="\2018\03\15\心得-uTorrent-無痛轉-qBittorrent-工具介紹\ut2qt.7z">舊版本</a></li>
+<li>開啟 cmd 命令提示列，並 cd 到 <code>ut2qt.exe</code> 所在目錄</li>
+<li>執行 ut2qt.exe <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ut2qt.exe &quot;C:\Users\&lt;username&gt;\AppData\Roaming\uTorrent\resume.dat&quot; &quot;C:\Users\&lt;username&gt;\AppData\Local\qBittorrent\BT_backup\&quot;</span><br></pre></td></tr></table></figure></li>
+<li>等待執行完成後開啟 qBittorrent 檢查種子是否遷移完成</li>
+</ol>
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
+<li><a href="https://qbforums.shiki.hu/index.php?topic=3224.0" target="_blank" rel="noopener">Migrate from uTorrent to qBittorrent easily</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Windows</category>
+      </categories>
+      <tags>
+        <tag>隨筆</tag>
+        <tag>BitTorrent</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[Ubuntu] 使用 PuTTY 產生的 SSH KEY 來達到免密碼登入</title>
     <url>/2017/06/11/Ubuntu-%E4%BD%BF%E7%94%A8-PuTTY-%E7%94%A2%E7%94%9F%E7%9A%84-SSH-KEY-%E4%BE%86%E9%81%94%E5%88%B0%E5%85%8D%E5%AF%86%E7%A2%BC%E7%99%BB%E5%85%A5/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>　　最近看了一下 VPS 的 log，發現一直有人在踹密碼，所以決定把 ssh 密碼驗證給關掉，改用 SSH KEY 來做登入驗證。</p>
@@ -970,27 +1026,43 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       </tags>
   </entry>
   <entry>
-    <title>[Windows] 解決 Win10 安裝時無法選擇版本的問題</title>
-    <url>/2017/07/30/Windows-%E8%A7%A3%E6%B1%BA-Win10-%E5%AE%89%E8%A3%9D%E6%99%82%E7%84%A1%E6%B3%95%E9%81%B8%E6%93%87%E7%89%88%E6%9C%AC%E7%9A%84%E5%95%8F%E9%A1%8C/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>現在新的套裝主機都已經把 Windows 序號內置進 BIOS 裡了，導致全新安裝系統時會自動選擇和序號匹配的版本，無法自行決定要安裝哪個版本。</p>
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><ul>
-<li>將 Windows 安裝 iso 寫進隨身碟裡，通常是使用 Rufus</li>
-<li><code>X:\sources\</code> 底下使用記事本新增 <code>ei.cfg</code></li>
-<li>在 <code>ei.cfg</code> 內新增以下內容<a id="more"></a> 
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[EditionID]</span><br><span class="line"></span><br><span class="line">[Channel]</span><br><span class="line">Retail</span><br><span class="line">[VL]</span><br><span class="line">0</span><br></pre></td></tr></table></figure></li>
-<li>保存退出，重開機以後選單就會自動出來了</li>
+    <title>[翻牆] 2018 ShadowsocksR 安裝及設定推薦</title>
+    <url>/2018/03/24/%E7%BF%BB%E7%89%86-2018-ShadowsocksR-%E5%AE%89%E8%A3%9D%E5%8F%8A%E8%A8%AD%E5%AE%9A%E6%8E%A8%E8%96%A6/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近朋友要去中國，幫忙研究一下了翻牆軟體，以下是我從網路上資料整理出來的安裝和設定推薦</p>
+<h2 id="SSR-安裝-Ubuntu-16-04"><a href="#SSR-安裝-Ubuntu-16-04" class="headerlink" title="SSR 安裝 (Ubuntu 16.04)"></a>SSR 安裝 (Ubuntu 16.04)</h2><p>以下使用 <strong>秋水逸冰</strong> 撰寫的一鍵腳本 <a href="https://teddysun.com/486.html" target="_blank" rel="noopener">Shadowsocks 一键安装脚本（四合一）</a></p>
+<ul>
+<li><p>使用 root 用戶執行</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget --no-check-certificate -O shadowsocks-all.sh https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;teddysun&#x2F;shadowsocks_install&#x2F;master&#x2F;shadowsocks-all.sh</span><br><span class="line">chmod +x shadowsocks-all.sh</span><br><span class="line">.&#x2F;shadowsocks-all.sh 2&gt;&amp;1 | tee shadowsocks-all.log</span><br></pre></td></tr></table></figure>
+<a id="more"></a> 
+<p>選擇安裝 SSR，配置按照以下推薦方案選擇</p>
+</li>
+<li><p><strong>翻牆用 避免被 GFW 封鎖</strong></p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- 端口 : 不要使用 80,443 等常見端口，避免被主動探測是否有正常網頁服務在運作</span><br><span class="line">- 加密 : none</span><br><span class="line">- 協議 : auth_chain_a</span><br><span class="line">- 混淆 : plain</span><br></pre></td></tr></table></figure>
+<p>auth_chain_a 自帶加密，故不需要二次加密<br>若非遭到 QoS 或是網路出口對對外流量限制較嚴格(只放行網頁流量)，不需要開啟混淆</p>
+</li>
+<li><p><strong>混淆流量躲避網路出口 QoS 用</strong></p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- 端口 : 推薦 443</span><br><span class="line">- 加密 : none</span><br><span class="line">- 協議 : auth_chain_a 或是 chain_b,c,d 後者封包分布大小更加規整，避免遭到分析，根據客戶端能支援到那些做選擇</span><br><span class="line">- 混淆 : tls1.2_ticket_auth</span><br></pre></td></tr></table></figure>
+<p>設定端口為 443 並搭配 tls1.2 混淆使得流量看起來更像正規的 HTTPS 上網流量，<br>但若被人主動探測 443 是否有運作 https 服務可能會被發現正在使用代理上網，若要長久翻牆不推薦使用。</p>
+</li>
 </ul>
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="https://msdn.microsoft.com/zh-tw/library/hh824952.aspx" target="_blank" rel="noopener">Windows 安裝程式版本設定和產品識別碼檔案 EI.cfg和 PID.txt</a></li>
-<li><a href="http://club.lenovo.cn/detail/1935300/12916636" target="_blank" rel="noopener">重装Win10专业版（防止出现无法选择版本从而默认安装家庭版的情况</a></li>
+<h2 id="SSR-客戶端下載"><a href="#SSR-客戶端下載" class="headerlink" title="SSR 客戶端下載"></a>SSR 客戶端下載</h2><ul>
+<li><a href="https://github.com/shadowsocksrr/shadowsocksr-csharp/releases" target="_blank" rel="noopener">SSR Windows Client</a> 只代理 http 流量，若要全局代理改用 SSTAP</li>
+<li><a href="https://github.com/shadowsocksrr/shadowsocksr-android/releases" target="_blank" rel="noopener">SSR Android Client</a></li>
+</ul>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
+<li><a href="https://github.com/iMeiji/shadowsocks_install/wiki/ShadowsocksR-协议插件文档" target="_blank" rel="noopener">協議插件文檔</a></li>
+<li><a href="https://lolico.moe/tutorial/shadowsocksr.html" target="_blank" rel="noopener">[ShadowsocksR] 大概是萌新也看得懂的SSR功能详细介绍&amp;使用教程</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>Windows</category>
+        <category>Linux</category>
       </categories>
       <tags>
-        <tag>Windows</tag>
+        <tag>Ubuntu</tag>
+        <tag>Proxy</tag>
         <tag>隨筆</tag>
+        <tag>ShadowsocksR</tag>
+        <tag>翻牆</tag>
       </tags>
   </entry>
   <entry>
@@ -1033,112 +1105,6 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
         <tag>WhatsUP-Gold</tag>
         <tag>Database</tag>
         <tag>SQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[心得] uTorrent 無痛轉 qBittorrent 工具介紹</title>
-    <url>/2018/03/15/%E5%BF%83%E5%BE%97-uTorrent-%E7%84%A1%E7%97%9B%E8%BD%89-qBittorrent-%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%B4%B9/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近 uTorrent 爆出 3.x 版本 WebUI 有漏洞，導致各大 PT 站不再支援 uTorrent 3.x<br>需要尋找一個無痛轉換的工具，在網上找了找總算找到，分享給大家</p>
-<h1 id="注意事項"><a href="#注意事項" class="headerlink" title="注意事項"></a>注意事項</h1><ol>
-<li>種子名不同但內容相同的種子會重新下載，多站輔種的記得先限速 1KB</li>
-<li>種子路徑有 Junction Link 的會有問題，請多注意</li>
-<li>下載中的種子也會遷移，建議是都完種了再來搬家</li>
-<li>搬家前可以把 <code>未完成檔案加上 .!qb 副檔名</code> 功能給拿掉，避免意外</li>
-<li>謹慎操作，隨手備份，本人不為你的檔案負任何責任</li>
-</ol>
-<a id="more"></a> 
-
-<h1 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h1><ol>
-<li>完全關閉 uTorrent 以及 qBittorrent 客戶端</li>
-<li>下載 <a href="\2018\03\15\心得-uTorrent-無痛轉-qBittorrent-工具介紹\ut2qt_20150911.7z">ut2qt.exe</a>，不能運作請下載 <a href="\2018\03\15\心得-uTorrent-無痛轉-qBittorrent-工具介紹\ut2qt.7z">舊版本</a></li>
-<li>開啟 cmd 命令提示列，並 cd 到 <code>ut2qt.exe</code> 所在目錄</li>
-<li>執行 ut2qt.exe <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ut2qt.exe &quot;C:\Users\&lt;username&gt;\AppData\Roaming\uTorrent\resume.dat&quot; &quot;C:\Users\&lt;username&gt;\AppData\Local\qBittorrent\BT_backup\&quot;</span><br></pre></td></tr></table></figure></li>
-<li>等待執行完成後開啟 qBittorrent 檢查種子是否遷移完成</li>
-</ol>
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="https://qbforums.shiki.hu/index.php?topic=3224.0" target="_blank" rel="noopener">Migrate from uTorrent to qBittorrent easily</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Windows</category>
-      </categories>
-      <tags>
-        <tag>隨筆</tag>
-        <tag>BitTorrent</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[翻牆] 2018 ShadowsocksR 安裝及設定推薦</title>
-    <url>/2018/03/24/%E7%BF%BB%E7%89%86-2018-ShadowsocksR-%E5%AE%89%E8%A3%9D%E5%8F%8A%E8%A8%AD%E5%AE%9A%E6%8E%A8%E8%96%A6/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近朋友要去中國，幫忙研究一下了翻牆軟體，以下是我從網路上資料整理出來的安裝和設定推薦</p>
-<h2 id="SSR-安裝-Ubuntu-16-04"><a href="#SSR-安裝-Ubuntu-16-04" class="headerlink" title="SSR 安裝 (Ubuntu 16.04)"></a>SSR 安裝 (Ubuntu 16.04)</h2><p>以下使用 <strong>秋水逸冰</strong> 撰寫的一鍵腳本 <a href="https://teddysun.com/486.html" target="_blank" rel="noopener">Shadowsocks 一键安装脚本（四合一）</a></p>
-<ul>
-<li><p>使用 root 用戶執行</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget --no-check-certificate -O shadowsocks-all.sh https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;teddysun&#x2F;shadowsocks_install&#x2F;master&#x2F;shadowsocks-all.sh</span><br><span class="line">chmod +x shadowsocks-all.sh</span><br><span class="line">.&#x2F;shadowsocks-all.sh 2&gt;&amp;1 | tee shadowsocks-all.log</span><br></pre></td></tr></table></figure>
-<a id="more"></a> 
-<p>選擇安裝 SSR，配置按照以下推薦方案選擇</p>
-</li>
-<li><p><strong>翻牆用 避免被 GFW 封鎖</strong></p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- 端口 : 不要使用 80,443 等常見端口，避免被主動探測是否有正常網頁服務在運作</span><br><span class="line">- 加密 : none</span><br><span class="line">- 協議 : auth_chain_a</span><br><span class="line">- 混淆 : plain</span><br></pre></td></tr></table></figure>
-<p>auth_chain_a 自帶加密，故不需要二次加密<br>若非遭到 QoS 或是網路出口對對外流量限制較嚴格(只放行網頁流量)，不需要開啟混淆</p>
-</li>
-<li><p><strong>混淆流量躲避網路出口 QoS 用</strong></p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- 端口 : 推薦 443</span><br><span class="line">- 加密 : none</span><br><span class="line">- 協議 : auth_chain_a 或是 chain_b,c,d 後者封包分布大小更加規整，避免遭到分析，根據客戶端能支援到那些做選擇</span><br><span class="line">- 混淆 : tls1.2_ticket_auth</span><br></pre></td></tr></table></figure>
-<p>設定端口為 443 並搭配 tls1.2 混淆使得流量看起來更像正規的 HTTPS 上網流量，<br>但若被人主動探測 443 是否有運作 https 服務可能會被發現正在使用代理上網，若要長久翻牆不推薦使用。</p>
-</li>
-</ul>
-<h2 id="SSR-客戶端下載"><a href="#SSR-客戶端下載" class="headerlink" title="SSR 客戶端下載"></a>SSR 客戶端下載</h2><ul>
-<li><a href="https://github.com/shadowsocksrr/shadowsocksr-csharp/releases" target="_blank" rel="noopener">SSR Windows Client</a> 只代理 http 流量，若要全局代理改用 SSTAP</li>
-<li><a href="https://github.com/shadowsocksrr/shadowsocksr-android/releases" target="_blank" rel="noopener">SSR Android Client</a></li>
-</ul>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
-<li><a href="https://github.com/iMeiji/shadowsocks_install/wiki/ShadowsocksR-协议插件文档" target="_blank" rel="noopener">協議插件文檔</a></li>
-<li><a href="https://lolico.moe/tutorial/shadowsocksr.html" target="_blank" rel="noopener">[ShadowsocksR] 大概是萌新也看得懂的SSR功能详细介绍&amp;使用教程</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Ubuntu</tag>
-        <tag>Proxy</tag>
-        <tag>隨筆</tag>
-        <tag>ShadowsocksR</tag>
-        <tag>翻牆</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[隨筆] Cisco Smart Install 漏洞處理紀錄</title>
-    <url>/2018/04/12/%E9%9A%A8%E7%AD%86-Cisco-Smart-Install-%E6%BC%8F%E6%B4%9E%E8%99%95%E7%90%86%E7%B4%80%E9%8C%84/</url>
-    <content><![CDATA[<h2 id="如何檢查設備是否受到影響"><a href="#如何檢查設備是否受到影響" class="headerlink" title="如何檢查設備是否受到影響"></a>如何檢查設備是否受到影響</h2><p><strong><a href="https://www.cisco.com/c/en/us/td/docs/switches/lan/smart_install/configuration/guide/smart_install/supported_devices.html#51890" target="_blank" rel="noopener">影響的Switch列表： (65xx/ 45xx/3xxx / 29xx 系列)</a></strong></p>
-<p><strong>手動確認設備是否開啟 Smart Install：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">switch# show vstack config | inc Role</span><br><span class="line">Role: Client (SmartInstall enabled)</span><br></pre></td></tr></table></figure>
-<a id="more"></a> 
-<p><strong>探針測試：</strong><br>Windows 請安裝 Python 2.7 後，使用 cmd 執行以下命令</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">smi_check.py [-h] -i IP [-p PORT]</span><br></pre></td></tr></table></figure>
-<p>下載：<br><a href="https://github.com/Cisco-Talos/smi_check" target="_blank" rel="noopener">https://github.com/Cisco-Talos/smi_check</a></p>
-<h2 id="解決方法"><a href="#解決方法" class="headerlink" title="解決方法"></a>解決方法</h2><ol>
-<li>升級 IOS 版本</li>
-<li>手動關閉 Smart Install<br> <code>switch(config)# no vstack</code></li>
-<li>建立 Firewall Policy （禁止連線到 switch的 TCP 4786）</li>
-<li>若必須要使用請在 Switch 上設定 ACL 限定來源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ip access-list extended SMI_HARDENING_LIST</span><br><span class="line">permit tcp host 10.10.10.1 host 10.10.10.200 eq 4786</span><br><span class="line">deny tcp any any eq 4786</span><br><span class="line">permit ip any any</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
-<li><a href="https://embedi.com/blog/cisco-smart-install-remote-code-execution/" target="_blank" rel="noopener">Cisco Smart Install Remote Code Execution</a></li>
-<li><a href="https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20180328-smi2" target="_blank" rel="noopener">Cisco IOS and IOS XE Software Smart Install Remote Code Execution Vulnerability</a></li>
-<li><a href="http://blog.talosintelligence.com/2018/04/critical-infrastructure-at-risk.html" target="_blank" rel="noopener">Critical Infrastructure at Risk: Advanced Actors Target Smart Install Client</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Networking</category>
-      </categories>
-      <tags>
-        <tag>隨筆</tag>
-        <tag>Cisco</tag>
-        <tag>漏洞</tag>
       </tags>
   </entry>
   <entry>
@@ -1197,63 +1163,37 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       </tags>
   </entry>
   <entry>
-    <title>[隨筆] Proxmox VE 常用指令筆記</title>
-    <url>/2018/04/24/%E9%9A%A8%E7%AD%86-Proxmox-VE-%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4%E7%AD%86%E8%A8%98/</url>
-    <content><![CDATA[<h2 id="ZFS-Pool-增加-ZFS-硬碟"><a href="#ZFS-Pool-增加-ZFS-硬碟" class="headerlink" title="ZFS Pool 增加 ZFS 硬碟"></a>ZFS Pool 增加 ZFS 硬碟</h2><ul>
-<li><a href="http://www.gienginali.idv.tw/modules/tad_book3/pda.php?tbdsn=797" target="_blank" rel="noopener">Proxmox 虛擬主機架設-從無到有(ZFS)</a></li>
-</ul>
-<p><code>#ls /dev/disk/by-id</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@node01:~# ls &#x2F;dev&#x2F;disk&#x2F;by-id</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07-part1</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07-part2</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07-part9</span><br><span class="line">scsi-36782bcb01d6dd9002199a0b8153ff675</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07-part1</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07-part2</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07-part9</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a0b8153ff675</span><br></pre></td></tr></table></figure>
+    <title>[隨筆] Cisco Smart Install 漏洞處理紀錄</title>
+    <url>/2018/04/12/%E9%9A%A8%E7%AD%86-Cisco-Smart-Install-%E6%BC%8F%E6%B4%9E%E8%99%95%E7%90%86%E7%B4%80%E9%8C%84/</url>
+    <content><![CDATA[<h2 id="如何檢查設備是否受到影響"><a href="#如何檢查設備是否受到影響" class="headerlink" title="如何檢查設備是否受到影響"></a>如何檢查設備是否受到影響</h2><p><strong><a href="https://www.cisco.com/c/en/us/td/docs/switches/lan/smart_install/configuration/guide/smart_install/supported_devices.html#51890" target="_blank" rel="noopener">影響的Switch列表： (65xx/ 45xx/3xxx / 29xx 系列)</a></strong></p>
+<p><strong>手動確認設備是否開啟 Smart Install：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">switch# show vstack config | inc Role</span><br><span class="line">Role: Client (SmartInstall enabled)</span><br></pre></td></tr></table></figure>
 <a id="more"></a> 
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># ZFS Mirror</span><br><span class="line">zpool create -f -o ashift&#x3D;12 &lt;poolname&gt; mirror&#x2F;</span><br><span class="line">&#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;scsi-36782bcb01d6dd9002199a0b8153ff675</span><br></pre></td></tr></table></figure>
+<p><strong>探針測試：</strong><br>Windows 請安裝 Python 2.7 後，使用 cmd 執行以下命令</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">smi_check.py [-h] -i IP [-p PORT]</span><br></pre></td></tr></table></figure>
+<p>下載：<br><a href="https://github.com/Cisco-Talos/smi_check" target="_blank" rel="noopener">https://github.com/Cisco-Talos/smi_check</a></p>
+<h2 id="解決方法"><a href="#解決方法" class="headerlink" title="解決方法"></a>解決方法</h2><ol>
+<li>升級 IOS 版本</li>
+<li>手動關閉 Smart Install<br> <code>switch(config)# no vstack</code></li>
+<li>建立 Firewall Policy （禁止連線到 switch的 TCP 4786）</li>
+<li>若必須要使用請在 Switch 上設定 ACL 限定來源<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ip access-list extended SMI_HARDENING_LIST</span><br><span class="line">permit tcp host 10.10.10.1 host 10.10.10.200 eq 4786</span><br><span class="line">deny tcp any any eq 4786</span><br><span class="line">permit ip any any</span><br></pre></td></tr></table></figure>
 
 
-<h2 id="ZFS-System-Snapshot"><a href="#ZFS-System-Snapshot" class="headerlink" title="ZFS System Snapshot"></a>ZFS System Snapshot</h2><ol>
-<li>查看目前有哪些 zfs 的 data sets：<code>zfs list -t all</code> 注意到 proxmox 預設將最上層的 data set 叫做 rpool。</li>
-<li>建立整個 zfs 系統的快照， 遞迴地包含 rpool 底下的每個 data set。<br>快照命名為 0-fresh，<code>zfs snapshot -r rpool@0-fresh</code> 不用半秒鐘就建好了!</li>
-<li>再次列出 data sets 的清單： zfs list -t all</li>
-<li>以後如果有必要，可以用 <code>zfs rollback</code></li>
-</ol>
-<h2 id="Fix-Update"><a href="#Fix-Update" class="headerlink" title="Fix Update"></a>Fix Update</h2><p>To fix this, its similar to <a href="https://www.svennd.be/proxmox-fix-updates/" target="_blank" rel="noopener">V3.X and V4.X.</a> We need to add one repository :<br>    <code>nano /etc/apt/sources.list</code></p>
-<ul>
-<li>add :<ul>
-<li>deb <a href="http://download.proxmox.com/debian" target="_blank" rel="noopener">http://download.proxmox.com/debian</a> stretch pve-no-subscription Then disable or remove</li>
-<li>rm -f /etc/apt/sources.list.d/pve-enterprise.list</li>
-</ul>
 </li>
-</ul>
-<h2 id="Passthrough-HDD-to-KVM"><a href="#Passthrough-HDD-to-KVM" class="headerlink" title="Passthrough HDD to KVM"></a>Passthrough HDD to KVM</h2><ul>
-<li><a href="https://pve.proxmox.com/wiki/Physical_disk_to_kvm" target="_blank" rel="noopener">Physical disk to kvm</a></li>
-</ul>
-<h2 id="Nested-Virtualization-（Guest-OS-調用虛擬化）"><a href="#Nested-Virtualization-（Guest-OS-調用虛擬化）" class="headerlink" title="Nested Virtualization （Guest OS 調用虛擬化）"></a>Nested Virtualization （Guest OS 調用虛擬化）</h2><ul>
-<li><a href="https://pve.proxmox.com/wiki/Nested_Virtualization" target="_blank" rel="noopener">Nested Virtualization</a></li>
-</ul>
-<h2 id="Install-SNMP-Service-on-Proxmox-VE"><a href="#Install-SNMP-Service-on-Proxmox-VE" class="headerlink" title="Install SNMP Service on Proxmox VE"></a>Install SNMP Service on Proxmox VE</h2><ul>
-<li><a href="https://www.svennd.be/how-to-install-snmp-service-on-proxmox/" target="_blank" rel="noopener">how to install SNMP service on Proxmox</a></li>
-</ul>
-<h2 id="LSI-MSM-on-Debian"><a href="#LSI-MSM-on-Debian" class="headerlink" title="LSI MSM on Debian"></a>LSI MSM on Debian</h2><ul>
-<li><a href="https://plus.google.com/+AndreasKotowicz/posts/Teoy9HoCNUx" target="_blank" rel="noopener">LSI MegaRAID Storage Manager 11.x for Linux HowTo on Ubuntu 10.04 64 bit (should work on Debian too)</a></li>
-</ul>
-<h2 id="Qemu-Agent-節省記憶體"><a href="#Qemu-Agent-節省記憶體" class="headerlink" title="Qemu Agent 節省記憶體"></a>Qemu Agent 節省記憶體</h2><ul>
-<li><a href="https://pve.proxmox.com/wiki/Qemu-guest-agent" target="_blank" rel="noopener">Qemu-guest-agent</a></li>
-</ul>
-<h2 id="Intel-Graphic-Passthough"><a href="#Intel-Graphic-Passthough" class="headerlink" title="Intel Graphic Passthough"></a>Intel Graphic Passthough</h2><ul>
-<li><a href="https://pve.proxmox.com/wiki/Pci_passthrough" target="_blank" rel="noopener">Pci passthrough</a></li>
-<li><a href="https://forum.proxmox.com/threads/guide-intel-intergrated-graphic-passthrough.30451/" target="_blank" rel="noopener">[GUIDE] Intel Intergrated graphic Passthrough</a></li>
-<li><a href="https://forum.proxmox.com/threads/kaby-lake-igd-passthrough-on-proxmox-5-1-with-win10-vm.38125/" target="_blank" rel="noopener">Kaby Lake IGD passthrough on Proxmox 5.1 with Win10 VM</a></li>
-<li><a href="https://pve.proxmox.com/wiki/USB_Devices_in_Virtual_Machines" target="_blank" rel="noopener">USB Devices in Virtual Machines</a></li>
-</ul>
-<h2 id="Windows-VM-設定"><a href="#Windows-VM-設定" class="headerlink" title="Windows VM 設定"></a>Windows VM 設定</h2><ul>
-<li>待補</li>
+</ol>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
+<li><a href="https://embedi.com/blog/cisco-smart-install-remote-code-execution/" target="_blank" rel="noopener">Cisco Smart Install Remote Code Execution</a></li>
+<li><a href="https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20180328-smi2" target="_blank" rel="noopener">Cisco IOS and IOS XE Software Smart Install Remote Code Execution Vulnerability</a></li>
+<li><a href="http://blog.talosintelligence.com/2018/04/critical-infrastructure-at-risk.html" target="_blank" rel="noopener">Critical Infrastructure at Risk: Advanced Actors Target Smart Install Client</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>Virtualization</category>
+        <category>Networking</category>
       </categories>
       <tags>
         <tag>隨筆</tag>
-        <tag>Proxmox-VE</tag>
-        <tag>虛擬化</tag>
+        <tag>Cisco</tag>
+        <tag>漏洞</tag>
       </tags>
   </entry>
   <entry>
@@ -1280,42 +1220,6 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
         <tag>隨筆</tag>
         <tag>Aruba</tag>
         <tag>AP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[Windows] Hexo Blog 搭建紀錄</title>
-    <url>/2018/04/29/Windows-Hexo-Blog-%E6%90%AD%E5%BB%BA%E7%B4%80%E9%8C%84/</url>
-    <content><![CDATA[<h2 id="預覽"><a href="#預覽" class="headerlink" title="預覽"></a>預覽</h2><img src="/2018/04/29/Windows-Hexo-Blog-%E6%90%AD%E5%BB%BA%E7%B4%80%E9%8C%84/HexoBlog_01.png" class="">
-
-
-<h2 id="環境配置"><a href="#環境配置" class="headerlink" title="環境配置"></a>環境配置</h2><a id="more"></a> 
-<h4 id="1-安裝-Git"><a href="#1-安裝-Git" class="headerlink" title="1. 安裝 Git"></a>1. 安裝 Git</h4><p><a href="https://git-scm.com/download/win" target="_blank" rel="noopener">Download</a></p>
-<h4 id="2-安裝-node-js"><a href="#2-安裝-node-js" class="headerlink" title="2. 安裝 node.js"></a>2. 安裝 node.js</h4><p><a href="https://nodejs.org/en/" target="_blank" rel="noopener">Download</a></p>
-<h4 id="3-建立-Github-Repo"><a href="#3-建立-Github-Repo" class="headerlink" title="3. 建立 Github Repo"></a>3. 建立 Github Repo</h4><p>可以參考之前安裝 Octopress Blog 的紀錄<br><a href="https://blog.downager.com/2017/06/01/Ubuntu-使用-Github-架設-Octopress-Blog/">[Ubuntu] 使用 Github 架設 Octopress Blog</a></p>
-<h2 id="Hexo-初始安裝"><a href="#Hexo-初始安裝" class="headerlink" title="Hexo 初始安裝"></a>Hexo 初始安裝</h2><h4 id="1-打開-cmd，cd-到你要放置-hexo-資料夾的目錄。"><a href="#1-打開-cmd，cd-到你要放置-hexo-資料夾的目錄。" class="headerlink" title="1. 打開 cmd，cd 到你要放置 hexo 資料夾的目錄。"></a>1. 打開 cmd，cd 到你要放置 hexo 資料夾的目錄。</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\&gt; npm install hexo -g</span><br><span class="line">D:\&gt; hexo init blog</span><br><span class="line">D:\&gt; cd blog</span><br><span class="line">D:\blog&gt; npm install</span><br><span class="line">D:\blog&gt; hexo server</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-配置-config-yml"><a href="#2-配置-config-yml" class="headerlink" title="2. 配置 _config.yml"></a>2. 配置 _config.yml</h4><p>可以參考 <a href="https://hexo.io/docs/configuration.html" target="_blank" rel="noopener">這篇官方說明</a>，以下是我的配置</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Hexo Configuration</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;configuration.html</span><br><span class="line">## Source: https:&#x2F;&#x2F;github.com&#x2F;hexojs&#x2F;hexo&#x2F;</span><br><span class="line"></span><br><span class="line"># Site</span><br><span class="line">title: Relk&#39;s 工作手札</span><br><span class="line">subtitle: 一個閒來無事愛折騰的網路工程師</span><br><span class="line">description: </span><br><span class="line">author: Relk</span><br><span class="line">language: zh-tw</span><br><span class="line">timezone: Asia&#x2F;Taipei</span><br><span class="line"></span><br><span class="line"># URL</span><br><span class="line">## If your site is put in a subdirectory, set url as &#39;http:&#x2F;&#x2F;yoursite.com&#x2F;child&#39; and root as &#39;&#x2F;child&#x2F;&#39;</span><br><span class="line">url: https:&#x2F;&#x2F;blog.downager.com</span><br><span class="line">root: &#x2F;</span><br><span class="line">permalink: :year&#x2F;:month&#x2F;:day&#x2F;:title&#x2F;</span><br><span class="line">permalink_defaults:</span><br><span class="line"></span><br><span class="line"># Directory</span><br><span class="line">source_dir: source</span><br><span class="line">public_dir: public</span><br><span class="line">tag_dir: tags</span><br><span class="line">archive_dir: archives</span><br><span class="line">category_dir: categories</span><br><span class="line">code_dir: downloads&#x2F;code</span><br><span class="line">i18n_dir: :lang</span><br><span class="line">skip_render: </span><br><span class="line"></span><br><span class="line"># Writing</span><br><span class="line">new_post_name: :year-:month-:day-:title.md</span><br><span class="line">default_layout: post</span><br><span class="line">titlecase: false # Transform title into titlecase</span><br><span class="line">external_link: true # Open external links in new tab</span><br><span class="line">filename_case: 0</span><br><span class="line">render_drafts: false</span><br><span class="line">post_asset_folder: true</span><br><span class="line">relative_link: false</span><br><span class="line">future: true</span><br><span class="line">highlight:</span><br><span class="line">  enable: true</span><br><span class="line">  line_number: true</span><br><span class="line">  auto_detect: false</span><br><span class="line">  tab_replace:</span><br><span class="line">  </span><br><span class="line"># Home page setting</span><br><span class="line"># path: Root path for your blogs index page. (default &#x3D; &#39;&#39;)</span><br><span class="line"># per_page: Posts displayed per page. (0 &#x3D; disable pagination)</span><br><span class="line"># order_by: Posts order. (Order by date descending by default)</span><br><span class="line">index_generator:</span><br><span class="line">  path: &#39;&#39;</span><br><span class="line">  per_page: 10</span><br><span class="line">  order_by: -date</span><br><span class="line">  </span><br><span class="line"># Category &amp; Tag</span><br><span class="line">default_category: uncategorized</span><br><span class="line">category_map:</span><br><span class="line">tag_map:</span><br><span class="line"></span><br><span class="line"># Date &#x2F; Time format</span><br><span class="line">## Hexo uses Moment.js to parse and display date</span><br><span class="line">## You can customize the date format as defined in</span><br><span class="line">## http:&#x2F;&#x2F;momentjs.com&#x2F;docs&#x2F;#&#x2F;displaying&#x2F;format&#x2F;</span><br><span class="line">date_format: YYYY-MM-DD</span><br><span class="line">time_format: HH:mm:ss</span><br><span class="line"></span><br><span class="line"># Pagination</span><br><span class="line">## Set per_page to 0 to disable pagination</span><br><span class="line">per_page: 10</span><br><span class="line">pagination_dir: page</span><br><span class="line"></span><br><span class="line"># Extensions</span><br><span class="line">## Plugins: https:&#x2F;&#x2F;hexo.io&#x2F;plugins&#x2F;</span><br><span class="line">## Themes: https:&#x2F;&#x2F;hexo.io&#x2F;themes&#x2F;</span><br><span class="line">theme: yilia</span><br><span class="line"></span><br><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: git@github.com:Downager&#x2F;downager.github.io.git</span><br><span class="line">  branch: master</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># JsonContent</span><br><span class="line">jsonContent:</span><br><span class="line">  meta: false</span><br><span class="line">  pages: false</span><br><span class="line">  posts:</span><br><span class="line">    title: true</span><br><span class="line">    date: true</span><br><span class="line">    path: true</span><br><span class="line">    text: true</span><br><span class="line">    raw: false</span><br><span class="line">    content: false</span><br><span class="line">    slug: false</span><br><span class="line">    updated: false</span><br><span class="line">    comments: false</span><br><span class="line">    link: false</span><br><span class="line">    permalink: false</span><br><span class="line">    excerpt: false</span><br><span class="line">    categories: false</span><br><span class="line">    tags: true</span><br></pre></td></tr></table></figure>
-<h4 id="3-安裝主題"><a href="#3-安裝主題" class="headerlink" title="3. 安裝主題"></a>3. 安裝主題</h4><p>我這邊選擇了 <a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="noopener">yilia</a> 作為我的主題。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\blog&gt; git clone https:&#x2F;&#x2F;github.com&#x2F;litten&#x2F;hexo-theme-yilia.git themes&#x2F;yilia</span><br></pre></td></tr></table></figure>
-<ul>
-<li>編輯根目錄底下的 <code>_config.yml</code>，將主題修改成 <strong>yilia</strong> <code>theme: yilia</code></li>
-<li>編輯 <code>themes/yilia</code> 底下的 <code>_config.yml</code>，以下是我的配置：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Header</span><br><span class="line"></span><br><span class="line">menu:</span><br><span class="line">  主頁: &#x2F;  </span><br><span class="line">  歸檔: &#x2F;archives&#x2F;index.html</span><br><span class="line">  Blogger: https:&#x2F;&#x2F;downager.blogspot.tw</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"># SubNav</span><br><span class="line">subnav:</span><br><span class="line">  github: &quot;https:&#x2F;&#x2F;github.com&#x2F;Downager&quot;</span><br><span class="line">  #weibo: &quot;#&quot;</span><br><span class="line">  rss: &quot;&#x2F;atom.xml&quot;</span><br><span class="line">  #zhihu: &quot;#&quot;</span><br><span class="line">  #qq: &quot;#&quot;</span><br><span class="line">  #weixin: &quot;#&quot;</span><br><span class="line">  #jianshu: &quot;#&quot;</span><br><span class="line">  #douban: &quot;#&quot;</span><br><span class="line">  #segmentfault: &quot;#&quot;</span><br><span class="line">  #bilibili: &quot;#&quot;</span><br><span class="line">  #acfun: &quot;#&quot;</span><br><span class="line">  #facebook: &quot;#&quot;</span><br><span class="line">  #google: &quot;#&quot;</span><br><span class="line">  #twitter: &quot;#&quot;</span><br><span class="line">  linkedin: &quot;https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;relk-li&#x2F;&quot;</span><br><span class="line">  mail: &quot;mailto:zxc140zxc140@gmail.com&quot;</span><br><span class="line"></span><br><span class="line">rss: &#x2F;atom.xml</span><br><span class="line"></span><br><span class="line"># 是否需要修改 root 路径</span><br><span class="line"># 如果您的网站存放在子目录中，例如 http:&#x2F;&#x2F;yoursite.com&#x2F;blog，</span><br><span class="line"># 请将您的 url 设为 http:&#x2F;&#x2F;yoursite.com&#x2F;blog 并把 root 设为 &#x2F;blog&#x2F;。</span><br><span class="line">root: &#x2F;</span><br><span class="line"></span><br><span class="line"># Content</span><br><span class="line"></span><br><span class="line"># 文章太长，截断按钮文字</span><br><span class="line">excerpt_link: more</span><br><span class="line"># 文章卡片右下角常驻链接，不需要请设置为false</span><br><span class="line">show_all_link: &#39;展開全文&#39;</span><br><span class="line"># 数学公式</span><br><span class="line">mathjax: false</span><br><span class="line"># 是否在新窗口打开链接</span><br><span class="line">open_in_new: false</span><br><span class="line"></span><br><span class="line"># 打赏</span><br><span class="line"># 打赏type设定：0-关闭打赏； 1-文章对应的md文件里有reward:true属性，才有打赏； 2-所有文章均有打赏</span><br><span class="line">reward_type: 0</span><br><span class="line"># 打赏wording</span><br><span class="line">reward_wording: &#39;Ethereum: 0xaed9ef1a2c584b0a390727fcd4d99f7d9863e13c&#39;</span><br><span class="line"># 支付宝二维码图片地址，跟你设置头像的方式一样。比如：&#x2F;assets&#x2F;img&#x2F;alipay.jpg</span><br><span class="line">#alipay: </span><br><span class="line"># 微信二维码图片地址</span><br><span class="line">#weixin: </span><br><span class="line"># Ethereum Address</span><br><span class="line">#Ethereum: 0xaed9ef1a2c584b0a390727fcd4d99f7d9863e13c</span><br><span class="line"></span><br><span class="line"># 目录</span><br><span class="line"># 目录设定：0-不显示目录； 1-文章对应的md文件里有toc:true属性，才有目录； 2-所有文章均显示目录</span><br><span class="line">toc: 0</span><br><span class="line"># 根据自己的习惯来设置，如果你的目录标题习惯有标号，置为true即可隐藏hexo重复的序号；否则置为false</span><br><span class="line">toc_hide_index: true</span><br><span class="line"># 目录为空时的提示</span><br><span class="line">toc_empty_wording: &#39;目录，不存在的…&#39;</span><br><span class="line"></span><br><span class="line"># 是否有快速回到顶部的按钮</span><br><span class="line">top: true</span><br><span class="line"></span><br><span class="line"># Miscellaneous</span><br><span class="line">#baidu_analytics: &#39;&#39;</span><br><span class="line">google_analytics: &#39;UA-********-*&#39;</span><br><span class="line">favicon: &#x2F;assets&#x2F;img&#x2F;favicon.png</span><br><span class="line"></span><br><span class="line">#你的头像url</span><br><span class="line">avatar: &#x2F;assets&#x2F;img&#x2F;avatar.jpg</span><br><span class="line"></span><br><span class="line">#是否开启分享</span><br><span class="line">share_jia: false</span><br><span class="line"></span><br><span class="line">#评论：1、多说；2、网易云跟帖；3、畅言；4、Disqus；5、Gitment</span><br><span class="line">#不需要使用某项，直接设置值为false，或注释掉</span><br><span class="line">#具体请参考wiki：https:&#x2F;&#x2F;github.com&#x2F;litten&#x2F;hexo-theme-yilia&#x2F;wiki&#x2F;</span><br><span class="line"></span><br><span class="line">#1、多说</span><br><span class="line">duoshuo: false</span><br><span class="line"></span><br><span class="line">#2、网易云跟帖</span><br><span class="line">wangyiyun: false</span><br><span class="line"></span><br><span class="line">#3、畅言</span><br><span class="line">changyan_appid: false</span><br><span class="line">changyan_conf: false</span><br><span class="line"></span><br><span class="line">#4、Disqus 在hexo根目录的config里也有disqus_shortname字段，优先使用yilia的</span><br><span class="line">disqus: downager 		  #Shortname</span><br><span class="line"></span><br><span class="line">#5、Gitment</span><br><span class="line">gitment_owner: false      #你的 GitHub ID</span><br><span class="line">gitment_repo: &#39;&#39;          #存储评论的 repo</span><br><span class="line">gitment_oauth:</span><br><span class="line">  client_id: &#39;&#39;           #client ID</span><br><span class="line">  client_secret: &#39;&#39;       #client secret</span><br><span class="line"></span><br><span class="line"># 样式定制 - 一般不需要修改，除非有很强的定制欲望…</span><br><span class="line">style:</span><br><span class="line">  # 头像上面的背景颜色</span><br><span class="line">  header: &#39;#4d4d4d&#39;</span><br><span class="line">  # 右滑板块背景</span><br><span class="line">  slider: &#39;linear-gradient(200deg,#a0cfe4,#e8c37e)&#39;</span><br><span class="line"></span><br><span class="line"># slider的设置</span><br><span class="line">slider:</span><br><span class="line">  # 是否默认展开tags板块</span><br><span class="line">  showTags: true</span><br><span class="line"></span><br><span class="line"># 智能菜单</span><br><span class="line"># 如不需要，将该对应项置为false</span><br><span class="line"># 比如</span><br><span class="line">#smart_menu:</span><br><span class="line">#  friends: false</span><br><span class="line">smart_menu:</span><br><span class="line">  innerArchive: &#39;搜尋文章&#39;</span><br><span class="line">  friends: &#39;Donate&#39;</span><br><span class="line">  aboutme: &#39;關於我&#39;</span><br><span class="line"></span><br><span class="line">friends:</span><br><span class="line">  Ethereum Wallet: https:&#x2F;&#x2F;etherscan.io&#x2F;address&#x2F;0xaed9ef1a2c584b0a390727fcd4d99f7d9863e13c</span><br><span class="line">#  友情链接2: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接3: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接4: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接5: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接6: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line"></span><br><span class="line">aboutme: 這裡是 Relk 的工作手札 &lt;br&gt; 基本存放隨手寫的筆記 &lt;br&gt; 原 Blogger 於 2013-03-24 建立 &lt;br&gt; 2017-05-28 利用 Octopress 重新構建 Blog &lt;br&gt; 並託管在 Github 上。&lt;br&gt; 2018-03-02 覺得 Octopress 太難維護 &lt;br&gt; 又用 Hexo 重搭了一個，維護 Blog 好難 QQ &lt;br&gt;&lt;br&gt; 目前文章搬家中...</span><br></pre></td></tr></table></figure>
-<h4 id="4-安裝-RSS、Sitemap、hexo-asset-image-插件"><a href="#4-安裝-RSS、Sitemap、hexo-asset-image-插件" class="headerlink" title="4. 安裝 RSS、Sitemap、hexo-asset-image 插件"></a>4. 安裝 RSS、Sitemap、hexo-asset-image 插件</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\blog&gt; npm install hexo-asset-image</span><br><span class="line">D:\blog&gt; npm install hexo-generator-feed</span><br><span class="line">D:\blog&gt; npm install hexo-generator-sitemap</span><br></pre></td></tr></table></figure>
-之後重新部屬 Blog，會發現 <code>/atom.xml</code> 和 <code>/sitemap.xml</code> 都已經產生完畢了。<br><a href="https://github.com/CodeFalling/hexo-asset-image" target="_blank" rel="noopener">hexo-asset-image</a> 插件可以讓你用 <code></code> 語法插入圖片</li>
-</ul>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
-<li><a href="https://www.jianshu.com/p/956c44c87fb1" target="_blank" rel="noopener">Windows下GitHub + Hexo搭建个人博客</a></li>
-<li><a href="https://wizardforcel.gitbooks.io/markdown-simple-world/hexo-tutor-1.html" target="_blank" rel="noopener">Hexo 入门指南（一） - 简介 &amp; 准备</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Windows</category>
-      </categories>
-      <tags>
-        <tag>Windows</tag>
-        <tag>Hexo</tag>
-        <tag>Github</tag>
       </tags>
   </entry>
   <entry>
@@ -1442,6 +1346,102 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
         <tag>網路</tag>
         <tag>隨筆</tag>
         <tag>CCNP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[隨筆] Proxmox VE 常用指令筆記</title>
+    <url>/2018/04/24/%E9%9A%A8%E7%AD%86-Proxmox-VE-%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4%E7%AD%86%E8%A8%98/</url>
+    <content><![CDATA[<h2 id="ZFS-Pool-增加-ZFS-硬碟"><a href="#ZFS-Pool-增加-ZFS-硬碟" class="headerlink" title="ZFS Pool 增加 ZFS 硬碟"></a>ZFS Pool 增加 ZFS 硬碟</h2><ul>
+<li><a href="http://www.gienginali.idv.tw/modules/tad_book3/pda.php?tbdsn=797" target="_blank" rel="noopener">Proxmox 虛擬主機架設-從無到有(ZFS)</a></li>
+</ul>
+<p><code>#ls /dev/disk/by-id</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">root@node01:~# ls &#x2F;dev&#x2F;disk&#x2F;by-id</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07-part1</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07-part2</span><br><span class="line">scsi-36782bcb01d6dd9002199a07f11dcde07-part9</span><br><span class="line">scsi-36782bcb01d6dd9002199a0b8153ff675</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07-part1</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07-part2</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a07f11dcde07-part9</span><br><span class="line">wwn-0x6782bcb01d6dd9002199a0b8153ff675</span><br></pre></td></tr></table></figure>
+<a id="more"></a> 
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># ZFS Mirror</span><br><span class="line">zpool create -f -o ashift&#x3D;12 &lt;poolname&gt; mirror&#x2F;</span><br><span class="line">&#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;scsi-36782bcb01d6dd9002199a0b8153ff675</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="ZFS-System-Snapshot"><a href="#ZFS-System-Snapshot" class="headerlink" title="ZFS System Snapshot"></a>ZFS System Snapshot</h2><ol>
+<li>查看目前有哪些 zfs 的 data sets：<code>zfs list -t all</code> 注意到 proxmox 預設將最上層的 data set 叫做 rpool。</li>
+<li>建立整個 zfs 系統的快照， 遞迴地包含 rpool 底下的每個 data set。<br>快照命名為 0-fresh，<code>zfs snapshot -r rpool@0-fresh</code> 不用半秒鐘就建好了!</li>
+<li>再次列出 data sets 的清單： zfs list -t all</li>
+<li>以後如果有必要，可以用 <code>zfs rollback</code></li>
+</ol>
+<h2 id="Fix-Update"><a href="#Fix-Update" class="headerlink" title="Fix Update"></a>Fix Update</h2><p>To fix this, its similar to <a href="https://www.svennd.be/proxmox-fix-updates/" target="_blank" rel="noopener">V3.X and V4.X.</a> We need to add one repository :<br>    <code>nano /etc/apt/sources.list</code></p>
+<ul>
+<li>add :<ul>
+<li>deb <a href="http://download.proxmox.com/debian" target="_blank" rel="noopener">http://download.proxmox.com/debian</a> stretch pve-no-subscription Then disable or remove</li>
+<li>rm -f /etc/apt/sources.list.d/pve-enterprise.list</li>
+</ul>
+</li>
+</ul>
+<h2 id="Passthrough-HDD-to-KVM"><a href="#Passthrough-HDD-to-KVM" class="headerlink" title="Passthrough HDD to KVM"></a>Passthrough HDD to KVM</h2><ul>
+<li><a href="https://pve.proxmox.com/wiki/Physical_disk_to_kvm" target="_blank" rel="noopener">Physical disk to kvm</a></li>
+</ul>
+<h2 id="Nested-Virtualization-（Guest-OS-調用虛擬化）"><a href="#Nested-Virtualization-（Guest-OS-調用虛擬化）" class="headerlink" title="Nested Virtualization （Guest OS 調用虛擬化）"></a>Nested Virtualization （Guest OS 調用虛擬化）</h2><ul>
+<li><a href="https://pve.proxmox.com/wiki/Nested_Virtualization" target="_blank" rel="noopener">Nested Virtualization</a></li>
+</ul>
+<h2 id="Install-SNMP-Service-on-Proxmox-VE"><a href="#Install-SNMP-Service-on-Proxmox-VE" class="headerlink" title="Install SNMP Service on Proxmox VE"></a>Install SNMP Service on Proxmox VE</h2><ul>
+<li><a href="https://www.svennd.be/how-to-install-snmp-service-on-proxmox/" target="_blank" rel="noopener">how to install SNMP service on Proxmox</a></li>
+</ul>
+<h2 id="LSI-MSM-on-Debian"><a href="#LSI-MSM-on-Debian" class="headerlink" title="LSI MSM on Debian"></a>LSI MSM on Debian</h2><ul>
+<li><a href="https://plus.google.com/+AndreasKotowicz/posts/Teoy9HoCNUx" target="_blank" rel="noopener">LSI MegaRAID Storage Manager 11.x for Linux HowTo on Ubuntu 10.04 64 bit (should work on Debian too)</a></li>
+</ul>
+<h2 id="Qemu-Agent-節省記憶體"><a href="#Qemu-Agent-節省記憶體" class="headerlink" title="Qemu Agent 節省記憶體"></a>Qemu Agent 節省記憶體</h2><ul>
+<li><a href="https://pve.proxmox.com/wiki/Qemu-guest-agent" target="_blank" rel="noopener">Qemu-guest-agent</a></li>
+</ul>
+<h2 id="Intel-Graphic-Passthough"><a href="#Intel-Graphic-Passthough" class="headerlink" title="Intel Graphic Passthough"></a>Intel Graphic Passthough</h2><ul>
+<li><a href="https://pve.proxmox.com/wiki/Pci_passthrough" target="_blank" rel="noopener">Pci passthrough</a></li>
+<li><a href="https://forum.proxmox.com/threads/guide-intel-intergrated-graphic-passthrough.30451/" target="_blank" rel="noopener">[GUIDE] Intel Intergrated graphic Passthrough</a></li>
+<li><a href="https://forum.proxmox.com/threads/kaby-lake-igd-passthrough-on-proxmox-5-1-with-win10-vm.38125/" target="_blank" rel="noopener">Kaby Lake IGD passthrough on Proxmox 5.1 with Win10 VM</a></li>
+<li><a href="https://pve.proxmox.com/wiki/USB_Devices_in_Virtual_Machines" target="_blank" rel="noopener">USB Devices in Virtual Machines</a></li>
+</ul>
+<h2 id="Windows-VM-設定"><a href="#Windows-VM-設定" class="headerlink" title="Windows VM 設定"></a>Windows VM 設定</h2><ul>
+<li>待補</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Virtualization</category>
+      </categories>
+      <tags>
+        <tag>隨筆</tag>
+        <tag>Proxmox-VE</tag>
+        <tag>虛擬化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[Windows] Hexo Blog 搭建紀錄</title>
+    <url>/2018/04/29/Windows-Hexo-Blog-%E6%90%AD%E5%BB%BA%E7%B4%80%E9%8C%84/</url>
+    <content><![CDATA[<h2 id="預覽"><a href="#預覽" class="headerlink" title="預覽"></a>預覽</h2><img src="/2018/04/29/Windows-Hexo-Blog-%E6%90%AD%E5%BB%BA%E7%B4%80%E9%8C%84/HexoBlog_01.png" class="">
+
+
+<h2 id="環境配置"><a href="#環境配置" class="headerlink" title="環境配置"></a>環境配置</h2><a id="more"></a> 
+<h4 id="1-安裝-Git"><a href="#1-安裝-Git" class="headerlink" title="1. 安裝 Git"></a>1. 安裝 Git</h4><p><a href="https://git-scm.com/download/win" target="_blank" rel="noopener">Download</a></p>
+<h4 id="2-安裝-node-js"><a href="#2-安裝-node-js" class="headerlink" title="2. 安裝 node.js"></a>2. 安裝 node.js</h4><p><a href="https://nodejs.org/en/" target="_blank" rel="noopener">Download</a></p>
+<h4 id="3-建立-Github-Repo"><a href="#3-建立-Github-Repo" class="headerlink" title="3. 建立 Github Repo"></a>3. 建立 Github Repo</h4><p>可以參考之前安裝 Octopress Blog 的紀錄<br><a href="https://blog.downager.com/2017/06/01/Ubuntu-使用-Github-架設-Octopress-Blog/">[Ubuntu] 使用 Github 架設 Octopress Blog</a></p>
+<h2 id="Hexo-初始安裝"><a href="#Hexo-初始安裝" class="headerlink" title="Hexo 初始安裝"></a>Hexo 初始安裝</h2><h4 id="1-打開-cmd，cd-到你要放置-hexo-資料夾的目錄。"><a href="#1-打開-cmd，cd-到你要放置-hexo-資料夾的目錄。" class="headerlink" title="1. 打開 cmd，cd 到你要放置 hexo 資料夾的目錄。"></a>1. 打開 cmd，cd 到你要放置 hexo 資料夾的目錄。</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\&gt; npm install hexo -g</span><br><span class="line">D:\&gt; hexo init blog</span><br><span class="line">D:\&gt; cd blog</span><br><span class="line">D:\blog&gt; npm install</span><br><span class="line">D:\blog&gt; hexo server</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-配置-config-yml"><a href="#2-配置-config-yml" class="headerlink" title="2. 配置 _config.yml"></a>2. 配置 _config.yml</h4><p>可以參考 <a href="https://hexo.io/docs/configuration.html" target="_blank" rel="noopener">這篇官方說明</a>，以下是我的配置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Hexo Configuration</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;configuration.html</span><br><span class="line">## Source: https:&#x2F;&#x2F;github.com&#x2F;hexojs&#x2F;hexo&#x2F;</span><br><span class="line"></span><br><span class="line"># Site</span><br><span class="line">title: Relk&#39;s 工作手札</span><br><span class="line">subtitle: 一個閒來無事愛折騰的網路工程師</span><br><span class="line">description: </span><br><span class="line">author: Relk</span><br><span class="line">language: zh-tw</span><br><span class="line">timezone: Asia&#x2F;Taipei</span><br><span class="line"></span><br><span class="line"># URL</span><br><span class="line">## If your site is put in a subdirectory, set url as &#39;http:&#x2F;&#x2F;yoursite.com&#x2F;child&#39; and root as &#39;&#x2F;child&#x2F;&#39;</span><br><span class="line">url: https:&#x2F;&#x2F;blog.downager.com</span><br><span class="line">root: &#x2F;</span><br><span class="line">permalink: :year&#x2F;:month&#x2F;:day&#x2F;:title&#x2F;</span><br><span class="line">permalink_defaults:</span><br><span class="line"></span><br><span class="line"># Directory</span><br><span class="line">source_dir: source</span><br><span class="line">public_dir: public</span><br><span class="line">tag_dir: tags</span><br><span class="line">archive_dir: archives</span><br><span class="line">category_dir: categories</span><br><span class="line">code_dir: downloads&#x2F;code</span><br><span class="line">i18n_dir: :lang</span><br><span class="line">skip_render: </span><br><span class="line"></span><br><span class="line"># Writing</span><br><span class="line">new_post_name: :year-:month-:day-:title.md</span><br><span class="line">default_layout: post</span><br><span class="line">titlecase: false # Transform title into titlecase</span><br><span class="line">external_link: true # Open external links in new tab</span><br><span class="line">filename_case: 0</span><br><span class="line">render_drafts: false</span><br><span class="line">post_asset_folder: true</span><br><span class="line">relative_link: false</span><br><span class="line">future: true</span><br><span class="line">highlight:</span><br><span class="line">  enable: true</span><br><span class="line">  line_number: true</span><br><span class="line">  auto_detect: false</span><br><span class="line">  tab_replace:</span><br><span class="line">  </span><br><span class="line"># Home page setting</span><br><span class="line"># path: Root path for your blogs index page. (default &#x3D; &#39;&#39;)</span><br><span class="line"># per_page: Posts displayed per page. (0 &#x3D; disable pagination)</span><br><span class="line"># order_by: Posts order. (Order by date descending by default)</span><br><span class="line">index_generator:</span><br><span class="line">  path: &#39;&#39;</span><br><span class="line">  per_page: 10</span><br><span class="line">  order_by: -date</span><br><span class="line">  </span><br><span class="line"># Category &amp; Tag</span><br><span class="line">default_category: uncategorized</span><br><span class="line">category_map:</span><br><span class="line">tag_map:</span><br><span class="line"></span><br><span class="line"># Date &#x2F; Time format</span><br><span class="line">## Hexo uses Moment.js to parse and display date</span><br><span class="line">## You can customize the date format as defined in</span><br><span class="line">## http:&#x2F;&#x2F;momentjs.com&#x2F;docs&#x2F;#&#x2F;displaying&#x2F;format&#x2F;</span><br><span class="line">date_format: YYYY-MM-DD</span><br><span class="line">time_format: HH:mm:ss</span><br><span class="line"></span><br><span class="line"># Pagination</span><br><span class="line">## Set per_page to 0 to disable pagination</span><br><span class="line">per_page: 10</span><br><span class="line">pagination_dir: page</span><br><span class="line"></span><br><span class="line"># Extensions</span><br><span class="line">## Plugins: https:&#x2F;&#x2F;hexo.io&#x2F;plugins&#x2F;</span><br><span class="line">## Themes: https:&#x2F;&#x2F;hexo.io&#x2F;themes&#x2F;</span><br><span class="line">theme: yilia</span><br><span class="line"></span><br><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: git@github.com:Downager&#x2F;downager.github.io.git</span><br><span class="line">  branch: master</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># JsonContent</span><br><span class="line">jsonContent:</span><br><span class="line">  meta: false</span><br><span class="line">  pages: false</span><br><span class="line">  posts:</span><br><span class="line">    title: true</span><br><span class="line">    date: true</span><br><span class="line">    path: true</span><br><span class="line">    text: true</span><br><span class="line">    raw: false</span><br><span class="line">    content: false</span><br><span class="line">    slug: false</span><br><span class="line">    updated: false</span><br><span class="line">    comments: false</span><br><span class="line">    link: false</span><br><span class="line">    permalink: false</span><br><span class="line">    excerpt: false</span><br><span class="line">    categories: false</span><br><span class="line">    tags: true</span><br></pre></td></tr></table></figure>
+<h4 id="3-安裝主題"><a href="#3-安裝主題" class="headerlink" title="3. 安裝主題"></a>3. 安裝主題</h4><p>我這邊選擇了 <a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="noopener">yilia</a> 作為我的主題。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\blog&gt; git clone https:&#x2F;&#x2F;github.com&#x2F;litten&#x2F;hexo-theme-yilia.git themes&#x2F;yilia</span><br></pre></td></tr></table></figure>
+<ul>
+<li>編輯根目錄底下的 <code>_config.yml</code>，將主題修改成 <strong>yilia</strong> <code>theme: yilia</code></li>
+<li>編輯 <code>themes/yilia</code> 底下的 <code>_config.yml</code>，以下是我的配置：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Header</span><br><span class="line"></span><br><span class="line">menu:</span><br><span class="line">  主頁: &#x2F;  </span><br><span class="line">  歸檔: &#x2F;archives&#x2F;index.html</span><br><span class="line">  Blogger: https:&#x2F;&#x2F;downager.blogspot.tw</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"># SubNav</span><br><span class="line">subnav:</span><br><span class="line">  github: &quot;https:&#x2F;&#x2F;github.com&#x2F;Downager&quot;</span><br><span class="line">  #weibo: &quot;#&quot;</span><br><span class="line">  rss: &quot;&#x2F;atom.xml&quot;</span><br><span class="line">  #zhihu: &quot;#&quot;</span><br><span class="line">  #qq: &quot;#&quot;</span><br><span class="line">  #weixin: &quot;#&quot;</span><br><span class="line">  #jianshu: &quot;#&quot;</span><br><span class="line">  #douban: &quot;#&quot;</span><br><span class="line">  #segmentfault: &quot;#&quot;</span><br><span class="line">  #bilibili: &quot;#&quot;</span><br><span class="line">  #acfun: &quot;#&quot;</span><br><span class="line">  #facebook: &quot;#&quot;</span><br><span class="line">  #google: &quot;#&quot;</span><br><span class="line">  #twitter: &quot;#&quot;</span><br><span class="line">  linkedin: &quot;https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;relk-li&#x2F;&quot;</span><br><span class="line">  mail: &quot;mailto:zxc140zxc140@gmail.com&quot;</span><br><span class="line"></span><br><span class="line">rss: &#x2F;atom.xml</span><br><span class="line"></span><br><span class="line"># 是否需要修改 root 路径</span><br><span class="line"># 如果您的网站存放在子目录中，例如 http:&#x2F;&#x2F;yoursite.com&#x2F;blog，</span><br><span class="line"># 请将您的 url 设为 http:&#x2F;&#x2F;yoursite.com&#x2F;blog 并把 root 设为 &#x2F;blog&#x2F;。</span><br><span class="line">root: &#x2F;</span><br><span class="line"></span><br><span class="line"># Content</span><br><span class="line"></span><br><span class="line"># 文章太长，截断按钮文字</span><br><span class="line">excerpt_link: more</span><br><span class="line"># 文章卡片右下角常驻链接，不需要请设置为false</span><br><span class="line">show_all_link: &#39;展開全文&#39;</span><br><span class="line"># 数学公式</span><br><span class="line">mathjax: false</span><br><span class="line"># 是否在新窗口打开链接</span><br><span class="line">open_in_new: false</span><br><span class="line"></span><br><span class="line"># 打赏</span><br><span class="line"># 打赏type设定：0-关闭打赏； 1-文章对应的md文件里有reward:true属性，才有打赏； 2-所有文章均有打赏</span><br><span class="line">reward_type: 0</span><br><span class="line"># 打赏wording</span><br><span class="line">reward_wording: &#39;Ethereum: 0xaed9ef1a2c584b0a390727fcd4d99f7d9863e13c&#39;</span><br><span class="line"># 支付宝二维码图片地址，跟你设置头像的方式一样。比如：&#x2F;assets&#x2F;img&#x2F;alipay.jpg</span><br><span class="line">#alipay: </span><br><span class="line"># 微信二维码图片地址</span><br><span class="line">#weixin: </span><br><span class="line"># Ethereum Address</span><br><span class="line">#Ethereum: 0xaed9ef1a2c584b0a390727fcd4d99f7d9863e13c</span><br><span class="line"></span><br><span class="line"># 目录</span><br><span class="line"># 目录设定：0-不显示目录； 1-文章对应的md文件里有toc:true属性，才有目录； 2-所有文章均显示目录</span><br><span class="line">toc: 0</span><br><span class="line"># 根据自己的习惯来设置，如果你的目录标题习惯有标号，置为true即可隐藏hexo重复的序号；否则置为false</span><br><span class="line">toc_hide_index: true</span><br><span class="line"># 目录为空时的提示</span><br><span class="line">toc_empty_wording: &#39;目录，不存在的…&#39;</span><br><span class="line"></span><br><span class="line"># 是否有快速回到顶部的按钮</span><br><span class="line">top: true</span><br><span class="line"></span><br><span class="line"># Miscellaneous</span><br><span class="line">#baidu_analytics: &#39;&#39;</span><br><span class="line">google_analytics: &#39;UA-********-*&#39;</span><br><span class="line">favicon: &#x2F;assets&#x2F;img&#x2F;favicon.png</span><br><span class="line"></span><br><span class="line">#你的头像url</span><br><span class="line">avatar: &#x2F;assets&#x2F;img&#x2F;avatar.jpg</span><br><span class="line"></span><br><span class="line">#是否开启分享</span><br><span class="line">share_jia: false</span><br><span class="line"></span><br><span class="line">#评论：1、多说；2、网易云跟帖；3、畅言；4、Disqus；5、Gitment</span><br><span class="line">#不需要使用某项，直接设置值为false，或注释掉</span><br><span class="line">#具体请参考wiki：https:&#x2F;&#x2F;github.com&#x2F;litten&#x2F;hexo-theme-yilia&#x2F;wiki&#x2F;</span><br><span class="line"></span><br><span class="line">#1、多说</span><br><span class="line">duoshuo: false</span><br><span class="line"></span><br><span class="line">#2、网易云跟帖</span><br><span class="line">wangyiyun: false</span><br><span class="line"></span><br><span class="line">#3、畅言</span><br><span class="line">changyan_appid: false</span><br><span class="line">changyan_conf: false</span><br><span class="line"></span><br><span class="line">#4、Disqus 在hexo根目录的config里也有disqus_shortname字段，优先使用yilia的</span><br><span class="line">disqus: downager 		  #Shortname</span><br><span class="line"></span><br><span class="line">#5、Gitment</span><br><span class="line">gitment_owner: false      #你的 GitHub ID</span><br><span class="line">gitment_repo: &#39;&#39;          #存储评论的 repo</span><br><span class="line">gitment_oauth:</span><br><span class="line">  client_id: &#39;&#39;           #client ID</span><br><span class="line">  client_secret: &#39;&#39;       #client secret</span><br><span class="line"></span><br><span class="line"># 样式定制 - 一般不需要修改，除非有很强的定制欲望…</span><br><span class="line">style:</span><br><span class="line">  # 头像上面的背景颜色</span><br><span class="line">  header: &#39;#4d4d4d&#39;</span><br><span class="line">  # 右滑板块背景</span><br><span class="line">  slider: &#39;linear-gradient(200deg,#a0cfe4,#e8c37e)&#39;</span><br><span class="line"></span><br><span class="line"># slider的设置</span><br><span class="line">slider:</span><br><span class="line">  # 是否默认展开tags板块</span><br><span class="line">  showTags: true</span><br><span class="line"></span><br><span class="line"># 智能菜单</span><br><span class="line"># 如不需要，将该对应项置为false</span><br><span class="line"># 比如</span><br><span class="line">#smart_menu:</span><br><span class="line">#  friends: false</span><br><span class="line">smart_menu:</span><br><span class="line">  innerArchive: &#39;搜尋文章&#39;</span><br><span class="line">  friends: &#39;Donate&#39;</span><br><span class="line">  aboutme: &#39;關於我&#39;</span><br><span class="line"></span><br><span class="line">friends:</span><br><span class="line">  Ethereum Wallet: https:&#x2F;&#x2F;etherscan.io&#x2F;address&#x2F;0xaed9ef1a2c584b0a390727fcd4d99f7d9863e13c</span><br><span class="line">#  友情链接2: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接3: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接4: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接5: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line">#  友情链接6: http:&#x2F;&#x2F;localhost:4000&#x2F;</span><br><span class="line"></span><br><span class="line">aboutme: 這裡是 Relk 的工作手札 &lt;br&gt; 基本存放隨手寫的筆記 &lt;br&gt; 原 Blogger 於 2013-03-24 建立 &lt;br&gt; 2017-05-28 利用 Octopress 重新構建 Blog &lt;br&gt; 並託管在 Github 上。&lt;br&gt; 2018-03-02 覺得 Octopress 太難維護 &lt;br&gt; 又用 Hexo 重搭了一個，維護 Blog 好難 QQ &lt;br&gt;&lt;br&gt; 目前文章搬家中...</span><br></pre></td></tr></table></figure>
+<h4 id="4-安裝-RSS、Sitemap、hexo-asset-image-插件"><a href="#4-安裝-RSS、Sitemap、hexo-asset-image-插件" class="headerlink" title="4. 安裝 RSS、Sitemap、hexo-asset-image 插件"></a>4. 安裝 RSS、Sitemap、hexo-asset-image 插件</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">D:\blog&gt; npm install hexo-asset-image</span><br><span class="line">D:\blog&gt; npm install hexo-generator-feed</span><br><span class="line">D:\blog&gt; npm install hexo-generator-sitemap</span><br></pre></td></tr></table></figure>
+之後重新部屬 Blog，會發現 <code>/atom.xml</code> 和 <code>/sitemap.xml</code> 都已經產生完畢了。<br><a href="https://github.com/CodeFalling/hexo-asset-image" target="_blank" rel="noopener">hexo-asset-image</a> 插件可以讓你用 <code></code> 語法插入圖片</li>
+</ul>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><ul>
+<li><a href="https://www.jianshu.com/p/956c44c87fb1" target="_blank" rel="noopener">Windows下GitHub + Hexo搭建个人博客</a></li>
+<li><a href="https://wizardforcel.gitbooks.io/markdown-simple-world/hexo-tutor-1.html" target="_blank" rel="noopener">Hexo 入门指南（一） - 简介 &amp; 准备</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Windows</category>
+      </categories>
+      <tags>
+        <tag>Windows</tag>
+        <tag>Hexo</tag>
+        <tag>Github</tag>
       </tags>
   </entry>
   <entry>
@@ -1585,99 +1585,6 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       </tags>
   </entry>
   <entry>
-    <title>[隨筆] LLDP 筆記</title>
-    <url>/2018/06/12/%E9%9A%A8%E7%AD%86-LLDP-%E7%AD%86%E8%A8%98/</url>
-    <content><![CDATA[<h2 id="LLDP"><a href="#LLDP" class="headerlink" title="LLDP"></a>LLDP</h2><h3 id="TLV-Packet"><a href="#TLV-Packet" class="headerlink" title="TLV Packet"></a>TLV Packet</h3><img src="/2018/06/12/%E9%9A%A8%E7%AD%86-LLDP-%E7%AD%86%E8%A8%98/LLDP.png" class="">
-
-
-<h3 id="Cisco-Switch-LLDP"><a href="#Cisco-Switch-LLDP" class="headerlink" title="Cisco Switch LLDP"></a>Cisco Switch LLDP</h3><h4 id="The-Cisco-switch-supports-the-following-basic-management-TLVs-which-are-optional"><a href="#The-Cisco-switch-supports-the-following-basic-management-TLVs-which-are-optional" class="headerlink" title="The Cisco switch supports the following basic management TLVs, which are optional:"></a>The Cisco switch supports the following basic management TLVs, which are optional:</h4><ul>
-<li><code>Port description</code> TLV</li>
-<li><code>System name</code> TLV</li>
-<li><code>System description</code> TLV</li>
-<li><code>System capabilities</code> TLV</li>
-<li><code>Management address</code> TLV</li>
-</ul>
-<a id="more"></a> 
-
-<h4 id="These-organizationally-specific-LLDP-TLVs-are-also-advertised-to-support-LLDP-MED"><a href="#These-organizationally-specific-LLDP-TLVs-are-also-advertised-to-support-LLDP-MED" class="headerlink" title="These organizationally specific LLDP TLVs are also advertised to support LLDP-MED."></a>These organizationally specific LLDP TLVs are also advertised to support LLDP-MED.</h4><ul>
-<li><code>Port VLAN ID</code> TLV (IEEE 802.1 organizationally specific TLVs)</li>
-<li><code>MAC/PHY configuration/status</code> TLV (IEEE 802.3 organizationally specific TLVs)</li>
-</ul>
-<h3 id="TLV-Type"><a href="#TLV-Type" class="headerlink" title="TLV Type"></a>TLV Type</h3><table>
-<thead>
-<tr>
-<th>TLV type</th>
-<th>TLV name</th>
-<th>Usage in LLDPPDU</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0</td>
-<td><code>End of LLDPDU</code></td>
-<td><strong>Mandatory</strong></td>
-</tr>
-<tr>
-<td>1</td>
-<td><code>Chassis ID</code></td>
-<td><strong>Mandatory</strong></td>
-</tr>
-<tr>
-<td>2</td>
-<td><code>Port ID</code></td>
-<td><strong>Mandatory</strong></td>
-</tr>
-<tr>
-<td>3</td>
-<td><code>Time To Live</code></td>
-<td><strong>Mandatory</strong></td>
-</tr>
-<tr>
-<td>4</td>
-<td><code>Port description</code></td>
-<td>Optional</td>
-</tr>
-<tr>
-<td>5</td>
-<td><code>System name</code></td>
-<td>Optional</td>
-</tr>
-<tr>
-<td>6</td>
-<td><code>System description</code></td>
-<td>Optional</td>
-</tr>
-<tr>
-<td>7</td>
-<td><code>System capabilities</code></td>
-<td>Optional</td>
-</tr>
-<tr>
-<td>8</td>
-<td><code>Management address</code></td>
-<td>Optional</td>
-</tr>
-<tr>
-<td>9–126</td>
-<td>Reserved</td>
-<td>-</td>
-</tr>
-<tr>
-<td>127</td>
-<td>Custom TLVs</td>
-<td>Optional</td>
-</tr>
-</tbody></table>
-]]></content>
-      <categories>
-        <category>Networking</category>
-      </categories>
-      <tags>
-        <tag>網路</tag>
-        <tag>隨筆</tag>
-        <tag>CCNP</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>[隨筆] QNAP 原廠技術講習筆記</title>
     <url>/2018/06/12/%E9%9A%A8%E7%AD%86-QNAP-%E5%8E%9F%E5%BB%A0%E6%8A%80%E8%A1%93%E8%AC%9B%E7%BF%92%E7%AD%86%E8%A8%98/</url>
     <content><![CDATA[<h2 id="Qtier-自動分層儲存-（Auto-Tiering）"><a href="#Qtier-自動分層儲存-（Auto-Tiering）" class="headerlink" title="Qtier 自動分層儲存 （Auto Tiering）"></a>Qtier 自動分層儲存 （Auto Tiering）</h2><blockquote>
@@ -1774,6 +1681,99 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       <tags>
         <tag>隨筆</tag>
         <tag>QNAP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[隨筆] LLDP 筆記</title>
+    <url>/2018/06/12/%E9%9A%A8%E7%AD%86-LLDP-%E7%AD%86%E8%A8%98/</url>
+    <content><![CDATA[<h2 id="LLDP"><a href="#LLDP" class="headerlink" title="LLDP"></a>LLDP</h2><h3 id="TLV-Packet"><a href="#TLV-Packet" class="headerlink" title="TLV Packet"></a>TLV Packet</h3><img src="/2018/06/12/%E9%9A%A8%E7%AD%86-LLDP-%E7%AD%86%E8%A8%98/LLDP.png" class="">
+
+
+<h3 id="Cisco-Switch-LLDP"><a href="#Cisco-Switch-LLDP" class="headerlink" title="Cisco Switch LLDP"></a>Cisco Switch LLDP</h3><h4 id="The-Cisco-switch-supports-the-following-basic-management-TLVs-which-are-optional"><a href="#The-Cisco-switch-supports-the-following-basic-management-TLVs-which-are-optional" class="headerlink" title="The Cisco switch supports the following basic management TLVs, which are optional:"></a>The Cisco switch supports the following basic management TLVs, which are optional:</h4><ul>
+<li><code>Port description</code> TLV</li>
+<li><code>System name</code> TLV</li>
+<li><code>System description</code> TLV</li>
+<li><code>System capabilities</code> TLV</li>
+<li><code>Management address</code> TLV</li>
+</ul>
+<a id="more"></a> 
+
+<h4 id="These-organizationally-specific-LLDP-TLVs-are-also-advertised-to-support-LLDP-MED"><a href="#These-organizationally-specific-LLDP-TLVs-are-also-advertised-to-support-LLDP-MED" class="headerlink" title="These organizationally specific LLDP TLVs are also advertised to support LLDP-MED."></a>These organizationally specific LLDP TLVs are also advertised to support LLDP-MED.</h4><ul>
+<li><code>Port VLAN ID</code> TLV (IEEE 802.1 organizationally specific TLVs)</li>
+<li><code>MAC/PHY configuration/status</code> TLV (IEEE 802.3 organizationally specific TLVs)</li>
+</ul>
+<h3 id="TLV-Type"><a href="#TLV-Type" class="headerlink" title="TLV Type"></a>TLV Type</h3><table>
+<thead>
+<tr>
+<th>TLV type</th>
+<th>TLV name</th>
+<th>Usage in LLDPPDU</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td><code>End of LLDPDU</code></td>
+<td><strong>Mandatory</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>Chassis ID</code></td>
+<td><strong>Mandatory</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Port ID</code></td>
+<td><strong>Mandatory</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Time To Live</code></td>
+<td><strong>Mandatory</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Port description</code></td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>System name</code></td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>System description</code></td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>System capabilities</code></td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>Management address</code></td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>9–126</td>
+<td>Reserved</td>
+<td>-</td>
+</tr>
+<tr>
+<td>127</td>
+<td>Custom TLVs</td>
+<td>Optional</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>Networking</category>
+      </categories>
+      <tags>
+        <tag>網路</tag>
+        <tag>隨筆</tag>
+        <tag>CCNP</tag>
       </tags>
   </entry>
   <entry>
@@ -1912,6 +1912,32 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       </tags>
   </entry>
   <entry>
+    <title>[CentOS] CentOS 7 GitLab 安裝 &amp; HTTPS 設定</title>
+    <url>/2019/01/31/CentOS-CentOS-7-GitLab-%E5%AE%89%E8%A3%9D-HTTPS-%E8%A8%AD%E5%AE%9A/</url>
+    <content><![CDATA[<h2 id="安裝步驟"><a href="#安裝步驟" class="headerlink" title="安裝步驟"></a>安裝步驟</h2><h3 id="1-安裝基礎套件"><a href="#1-安裝基礎套件" class="headerlink" title="1. 安裝基礎套件"></a>1. 安裝基礎套件</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 更新並安裝套件</span><br><span class="line">yum update</span><br><span class="line">yum install -y curl policycoreutils-python openssh-server openssh-clients</span><br><span class="line"># sshd 開機啟動</span><br><span class="line">systemctl enable sshd</span><br><span class="line">systemctl start sshd</span><br><span class="line"></span><br><span class="line"># 安裝 postfix</span><br><span class="line">yum install postfix</span><br><span class="line"># postfix 開機自動啟用</span><br><span class="line">systemctl enable postfix</span><br><span class="line">systemctl start postfix</span><br></pre></td></tr></table></figure>
+<a id="more"></a> 
+<h3 id="2-安裝-GitLab-CE"><a href="#2-安裝-GitLab-CE" class="headerlink" title="2. 安裝 GitLab-CE"></a>2. 安裝 GitLab-CE</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -sS https:&#x2F;&#x2F;packages.gitlab.com&#x2F;install&#x2F;repositories&#x2F;gitlab&#x2F;gitlab-ce&#x2F;script.rpm.sh | sudo bash</span><br><span class="line">yum install -y gitlab-ce</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-拷貝-HTTPS-證書"><a href="#3-拷貝-HTTPS-證書" class="headerlink" title="3. 拷貝 HTTPS 證書"></a>3. 拷貝 HTTPS 證書</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;etc&#x2F;gitlab&#x2F;ssl</span><br><span class="line">chmod 700 &#x2F;etc&#x2F;gitlab&#x2F;ssl</span><br><span class="line">cp gitlab.example.com.key gitlab.example.com.crt &#x2F;etc&#x2F;gitlab&#x2F;ssl&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-編輯-gitlab-rb"><a href="#4-編輯-gitlab-rb" class="headerlink" title="4. 編輯 gitlab.rb"></a>4. 編輯 gitlab.rb</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 修改配置文件</span><br><span class="line">vim &#x2F;etc&#x2F;gitlab&#x2F;gitlab.rb</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 修改對外域名</span><br><span class="line">external_url &#39;https:&#x2F;&#x2F;gitlab.example.com&#39;</span><br><span class="line"># HTTPS 重導向</span><br><span class="line">nginx[&#39;redirect_http_to_https&#39;] &#x3D; true</span><br><span class="line">nginx[&#39;redirect_http_to_https_port&#39;] &#x3D; 80</span><br><span class="line"># 修改證書 &amp; 私鑰對應檔案位置</span><br><span class="line">nginx[&#39;ssl_certificate&#39;] &#x3D; &quot;&#x2F;etc&#x2F;gitlab&#x2F;ssl&#x2F;gitlab.example.com.crt&quot;</span><br><span class="line">nginx[&#39;ssl_certificate_key&#39;] &#x3D; &quot;&#x2F;etc&#x2F;gitlab&#x2F;ssl&#x2F;gitlab.example.com.key&quot;</span><br><span class="line"></span><br><span class="line"># SMTP 設定依照需求自行參考此篇</span><br><span class="line">[SMTP settings](https:&#x2F;&#x2F;docs.gitlab.com&#x2F;omnibus&#x2F;settings&#x2F;smtp.html)</span><br><span class="line"></span><br><span class="line"># 重新加載配置文件</span><br><span class="line">gitlab-ctl reconfigure</span><br></pre></td></tr></table></figure>
+<h3 id="5-防火牆放行-https-流量"><a href="#5-防火牆放行-https-流量" class="headerlink" title="5. 防火牆放行 https 流量"></a>5. 防火牆放行 https 流量</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">firewall-cmd --permanent --add-service&#x3D;https</span><br><span class="line">systemctl reload firewalld</span><br></pre></td></tr></table></figure>
+
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
+<li><a href="https://about.gitlab.com/install/#centos-7?version=ce" target="_blank" rel="noopener">Omnibus package installation (recommended)</a></li>
+<li><a href="https://docs.gitlab.com/omnibus/settings/smtp.html" target="_blank" rel="noopener">SMTP settings</a></li>
+<li><a href="https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/settings/nginx.md" target="_blank" rel="noopener">NGINX settings</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>CentOS</tag>
+        <tag>GitLab</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>[隨筆] Cisco 2960X IOS 版本挑選 &amp; 更新</title>
     <url>/2018/11/25/%E9%9A%A8%E7%AD%86-Cisco-2960X-IOS-%E7%89%88%E6%9C%AC%E6%8C%91%E9%81%B8-%E6%9B%B4%E6%96%B0/</url>
     <content><![CDATA[<h2 id="版本挑選"><a href="#版本挑選" class="headerlink" title="版本挑選"></a>版本挑選</h2><h4 id="版本號說明請參考友站連結："><a href="#版本號說明請參考友站連結：" class="headerlink" title="版本號說明請參考友站連結："></a>版本號說明請參考友站連結：</h4><p><a href="http://bigpxuan.blogspot.com/2017/02/cisco12415.html" target="_blank" rel="noopener">大軒軒的筆記本 - Cisco版本號說明12.4和15</a></p>
@@ -1942,29 +1968,44 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       </tags>
   </entry>
   <entry>
-    <title>[CentOS] CentOS 7 GitLab 安裝 &amp; HTTPS 設定</title>
-    <url>/2019/01/31/CentOS-CentOS-7-GitLab-%E5%AE%89%E8%A3%9D-HTTPS-%E8%A8%AD%E5%AE%9A/</url>
-    <content><![CDATA[<h2 id="安裝步驟"><a href="#安裝步驟" class="headerlink" title="安裝步驟"></a>安裝步驟</h2><h3 id="1-安裝基礎套件"><a href="#1-安裝基礎套件" class="headerlink" title="1. 安裝基礎套件"></a>1. 安裝基礎套件</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 更新並安裝套件</span><br><span class="line">yum update</span><br><span class="line">yum install -y curl policycoreutils-python openssh-server openssh-clients</span><br><span class="line"># sshd 開機啟動</span><br><span class="line">systemctl enable sshd</span><br><span class="line">systemctl start sshd</span><br><span class="line"></span><br><span class="line"># 安裝 postfix</span><br><span class="line">yum install postfix</span><br><span class="line"># postfix 開機自動啟用</span><br><span class="line">systemctl enable postfix</span><br><span class="line">systemctl start postfix</span><br></pre></td></tr></table></figure>
+    <title>[Windows] Windows 10 2019 LTSC Eval（評估版）無痛轉換成 Full version（完整版）</title>
+    <url>/2019/02/22/Windows-Win10-2019-LTSC-Eval%EF%BC%88%E8%A9%95%E4%BC%B0%E7%89%88%EF%BC%89%E7%84%A1%E7%97%9B%E8%BD%89%E6%8F%9B%E6%88%90-Full-version%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近剛好要重灌電腦就順便裝了 LTSC 版本，本來想說不要亂下載非官方的 ISO 檔比較安全，特別去下載微軟官方評估版來安裝，結果 Eval 版本沒辦法用完整版序號來洗成正版，官方表明不能升級只能重裝，還好最後有找到免重裝的方法，重灌實在是太麻煩了…</p>
+<h1 id="準備完整版-Windows-10-2019-LTSC-ISO"><a href="#準備完整版-Windows-10-2019-LTSC-ISO" class="headerlink" title="準備完整版 Windows 10 2019 LTSC ISO"></a>準備完整版 Windows 10 2019 LTSC ISO</h1><h4 id="1-下載-EN-US-Windows-10-2019-LTSC-Eval-ISO（微軟載點）"><a href="#1-下載-EN-US-Windows-10-2019-LTSC-Eval-ISO（微軟載點）" class="headerlink" title="1. 下載 EN-US Windows 10 2019 LTSC Eval ISO（微軟載點）"></a>1. 下載 EN-US Windows 10 2019 LTSC Eval ISO（微軟載點）</h4><ul>
+<li><a href="https://software-download.microsoft.com/download/pr/17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x64FRE_en-us.iso" target="_blank" rel="noopener">17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x64FRE_en-us.iso</a></li>
+<li><a href="https://software-download.microsoft.com/download/pr/17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x86FRE_en-us.iso" target="_blank" rel="noopener">17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x86FRE_en-us.iso</a></li>
+</ul>
+<h4 id="2-下載-SPF-檔案-Language-Patch"><a href="#2-下載-SPF-檔案-Language-Patch" class="headerlink" title="2.  下載 SPF 檔案 (Language Patch)"></a>2.  下載 SPF 檔案 (Language Patch)</h4><p><a href="https://multiup.org/project/27b404c4cdef0b7def4a9c7f0e303f3e" target="_blank" rel="noopener"><code>Password: MDL</code></a></p>
 <a id="more"></a> 
-<h3 id="2-安裝-GitLab-CE"><a href="#2-安裝-GitLab-CE" class="headerlink" title="2. 安裝 GitLab-CE"></a>2. 安裝 GitLab-CE</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -sS https:&#x2F;&#x2F;packages.gitlab.com&#x2F;install&#x2F;repositories&#x2F;gitlab&#x2F;gitlab-ce&#x2F;script.rpm.sh | sudo bash</span><br><span class="line">yum install -y gitlab-ce</span><br></pre></td></tr></table></figure>
+<h4 id="3-利用-SVF-ISO-convertor-將檔案合併成完整版-ISO"><a href="#3-利用-SVF-ISO-convertor-將檔案合併成完整版-ISO" class="headerlink" title="3. 利用 SVF ISO convertor 將檔案合併成完整版 ISO"></a>3. 利用 SVF ISO convertor 將檔案合併成完整版 ISO</h4><ul>
+<li>下載 <a href="https://www.softpedia.com/get/System/Back-Up-and-Recovery/SVF-eXtractor.shtml" target="_blank" rel="noopener">svfx.exe</a>，選取 ISO &amp; SVF 並驗證</li>
+</ul>
+<img src="/2019/02/22/Windows-Win10-2019-LTSC-Eval%EF%BC%88%E8%A9%95%E4%BC%B0%E7%89%88%EF%BC%89%E7%84%A1%E7%97%9B%E8%BD%89%E6%8F%9B%E6%88%90-Full-version%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89/SVF.png" class="">
 
-<h3 id="3-拷貝-HTTPS-證書"><a href="#3-拷貝-HTTPS-證書" class="headerlink" title="3. 拷貝 HTTPS 證書"></a>3. 拷貝 HTTPS 證書</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p &#x2F;etc&#x2F;gitlab&#x2F;ssl</span><br><span class="line">chmod 700 &#x2F;etc&#x2F;gitlab&#x2F;ssl</span><br><span class="line">cp gitlab.example.com.key gitlab.example.com.crt &#x2F;etc&#x2F;gitlab&#x2F;ssl&#x2F;</span><br></pre></td></tr></table></figure>
 
-<h3 id="4-編輯-gitlab-rb"><a href="#4-編輯-gitlab-rb" class="headerlink" title="4. 編輯 gitlab.rb"></a>4. 編輯 gitlab.rb</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 修改配置文件</span><br><span class="line">vim &#x2F;etc&#x2F;gitlab&#x2F;gitlab.rb</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 修改對外域名</span><br><span class="line">external_url &#39;https:&#x2F;&#x2F;gitlab.example.com&#39;</span><br><span class="line"># HTTPS 重導向</span><br><span class="line">nginx[&#39;redirect_http_to_https&#39;] &#x3D; true</span><br><span class="line">nginx[&#39;redirect_http_to_https_port&#39;] &#x3D; 80</span><br><span class="line"># 修改證書 &amp; 私鑰對應檔案位置</span><br><span class="line">nginx[&#39;ssl_certificate&#39;] &#x3D; &quot;&#x2F;etc&#x2F;gitlab&#x2F;ssl&#x2F;gitlab.example.com.crt&quot;</span><br><span class="line">nginx[&#39;ssl_certificate_key&#39;] &#x3D; &quot;&#x2F;etc&#x2F;gitlab&#x2F;ssl&#x2F;gitlab.example.com.key&quot;</span><br><span class="line"></span><br><span class="line"># SMTP 設定依照需求自行參考此篇</span><br><span class="line">[SMTP settings](https:&#x2F;&#x2F;docs.gitlab.com&#x2F;omnibus&#x2F;settings&#x2F;smtp.html)</span><br><span class="line"></span><br><span class="line"># 重新加載配置文件</span><br><span class="line">gitlab-ctl reconfigure</span><br></pre></td></tr></table></figure>
-<h3 id="5-防火牆放行-https-流量"><a href="#5-防火牆放行-https-流量" class="headerlink" title="5. 防火牆放行 https 流量"></a>5. 防火牆放行 https 流量</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">firewall-cmd --permanent --add-service&#x3D;https</span><br><span class="line">systemctl reload firewalld</span><br></pre></td></tr></table></figure>
+<h1 id="修改-Register-騙過微軟升級檢測"><a href="#修改-Register-騙過微軟升級檢測" class="headerlink" title="修改 Register 騙過微軟升級檢測"></a>修改 Register 騙過微軟升級檢測</h1><p>路徑：<code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion</code></p>
+<ul>
+<li><code>Composition edition ID</code>:  EnterpriseS</li>
+<li><code>EditionID</code>: EnterpriseS</li>
+<li><code>Product name</code>: Windows 10 Enterprise LTSC 2019</li>
+</ul>
+<h1 id="掛載-Full-version-ISO-進行升級"><a href="#掛載-Full-version-ISO-進行升級" class="headerlink" title="掛載 Full version ISO 進行升級"></a>掛載 Full version ISO 進行升級</h1><p><strong>修改完 Register 後不要重開機，直接掛載 ISO 進行升級並保留資料，記得要勾選下載更新，才不會有問題</strong></p>
+<img src="/2019/02/22/Windows-Win10-2019-LTSC-Eval%EF%BC%88%E8%A9%95%E4%BC%B0%E7%89%88%EF%BC%89%E7%84%A1%E7%97%9B%E8%BD%89%E6%8F%9B%E6%88%90-Full-version%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89/Win10_Installer.jpg" class="">
+
+
 
 <h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="https://about.gitlab.com/install/#centos-7?version=ce" target="_blank" rel="noopener">Omnibus package installation (recommended)</a></li>
-<li><a href="https://docs.gitlab.com/omnibus/settings/smtp.html" target="_blank" rel="noopener">SMTP settings</a></li>
-<li><a href="https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/doc/settings/nginx.md" target="_blank" rel="noopener">NGINX settings</a></li>
+<li><a href="https://forums.mydigitallife.net/threads/windows-10-svf-repository.63324/page-128#post-1468363" target="_blank" rel="noopener">Windows 10 SVF Repository#2546 @Enthousiast</a></li>
+<li><a href="https://gist.github.com/CHEF-KOCH/35a857cf4a08a837958fb71e252a84da" target="_blank" rel="noopener">CHEF-KOCH/How to use svf to upgrade your Windows.txt</a></li>
+<li><a href="https://winaero.com/blog/upgrade-windows-10-evaluation-to-full-version-easily/" target="_blank" rel="noopener">Upgrade Windows 10 Evaluation to Full version easily</a></li>
+<li><a href="https://www.reddit.com/r/Piracy/comments/a6zabz/windows_10_ltsc_evaluation_activation/" target="_blank" rel="noopener">Windows 10 LTSC Evaluation - Activation</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>Windows</category>
       </categories>
       <tags>
-        <tag>CentOS</tag>
-        <tag>GitLab</tag>
+        <tag>Windows</tag>
       </tags>
   </entry>
   <entry>
@@ -2027,66 +2068,6 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
       <tags>
         <tag>CentOS</tag>
         <tag>Shell</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[隨筆] CentOS 7 常用指令筆記</title>
-    <url>/2019/04/28/%E9%9A%A8%E7%AD%86-CentOS-7-%E5%B8%B8%E7%94%A8%E7%AD%86%E8%A8%98%E6%8C%87%E4%BB%A4/</url>
-    <content><![CDATA[<h3 id="更改-Hostname"><a href="#更改-Hostname" class="headerlink" title="更改 Hostname"></a>更改 Hostname</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hostnamectl set-hostname &lt;new_hostname&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="設定-IP"><a href="#設定-IP" class="headerlink" title="設定 IP"></a>設定 IP</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 進入設定精靈</span><br><span class="line">nmtui</span><br><span class="line"></span><br><span class="line"># 重啟 network</span><br><span class="line">systemctl restart network</span><br><span class="line"></span><br><span class="line"># 檢查設定是否正確</span><br><span class="line">ip address</span><br></pre></td></tr></table></figure>
-<a id="more"></a>
-<h3 id="安裝-EPEL-Repository"><a href="#安裝-EPEL-Repository" class="headerlink" title="安裝 EPEL Repository"></a>安裝 EPEL Repository</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release</span><br></pre></td></tr></table></figure>
-<h3 id="安裝-open-vm-tools"><a href="#安裝-open-vm-tools" class="headerlink" title="安裝 open-vm-tools"></a>安裝 open-vm-tools</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install open-vm-tools</span><br></pre></td></tr></table></figure>
-<h3 id="停用-SSH-root-登入"><a href="#停用-SSH-root-登入" class="headerlink" title="停用 SSH root 登入"></a>停用 SSH root 登入</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 編輯 sshd_config</span><br><span class="line">vim &#x2F;etc&#x2F;ssh&#x2F;sshd_config</span><br><span class="line"></span><br><span class="line"># 修改以下內容</span><br><span class="line">PermitRootLogin no</span><br><span class="line"></span><br><span class="line"># 重啟 sshd</span><br><span class="line">systemctl restart sshd</span><br></pre></td></tr></table></figure>
-<h3 id="yum-rollback-到安裝前的狀態"><a href="#yum-rollback-到安裝前的狀態" class="headerlink" title="yum rollback 到安裝前的狀態"></a>yum rollback 到安裝前的狀態</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 查看預計要退的版本號</span><br><span class="line">yum history</span><br><span class="line"></span><br><span class="line"># undo</span><br><span class="line">yum history undo 8</span><br></pre></td></tr></table></figure>
-<h3 id="firewall-cmd"><a href="#firewall-cmd" class="headerlink" title="firewall-cmd"></a>firewall-cmd</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 查看目前網卡套用的 Zone</span><br><span class="line">firewall-cmd --get-active-zones</span><br><span class="line"></span><br><span class="line"># 將服務或端口永久新增或移除</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --add-service&#x3D;http</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --add-port&#x3D;8080&#x2F;tcp</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --remove-service&#x3D;http</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --remove-port&#x3D;8080&#x2F;tcp</span><br><span class="line"></span><br><span class="line"># reload 防火牆來套用新規則</span><br><span class="line">firewall-cmd --reload</span><br><span class="line"></span><br><span class="line"># 檢查設定</span><br><span class="line">firewall-cmd --list-all-zones</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>隨筆</tag>
-        <tag>CentOS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[Windows] Windows 10 2019 LTSC Eval（評估版）無痛轉換成 Full version（完整版）</title>
-    <url>/2019/02/22/Windows-Win10-2019-LTSC-Eval%EF%BC%88%E8%A9%95%E4%BC%B0%E7%89%88%EF%BC%89%E7%84%A1%E7%97%9B%E8%BD%89%E6%8F%9B%E6%88%90-Full-version%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近剛好要重灌電腦就順便裝了 LTSC 版本，本來想說不要亂下載非官方的 ISO 檔比較安全，特別去下載微軟官方評估版來安裝，結果 Eval 版本沒辦法用完整版序號來洗成正版，官方表明不能升級只能重裝，還好最後有找到免重裝的方法，重灌實在是太麻煩了…</p>
-<h1 id="準備完整版-Windows-10-2019-LTSC-ISO"><a href="#準備完整版-Windows-10-2019-LTSC-ISO" class="headerlink" title="準備完整版 Windows 10 2019 LTSC ISO"></a>準備完整版 Windows 10 2019 LTSC ISO</h1><h4 id="1-下載-EN-US-Windows-10-2019-LTSC-Eval-ISO（微軟載點）"><a href="#1-下載-EN-US-Windows-10-2019-LTSC-Eval-ISO（微軟載點）" class="headerlink" title="1. 下載 EN-US Windows 10 2019 LTSC Eval ISO（微軟載點）"></a>1. 下載 EN-US Windows 10 2019 LTSC Eval ISO（微軟載點）</h4><ul>
-<li><a href="https://software-download.microsoft.com/download/pr/17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x64FRE_en-us.iso" target="_blank" rel="noopener">17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x64FRE_en-us.iso</a></li>
-<li><a href="https://software-download.microsoft.com/download/pr/17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x86FRE_en-us.iso" target="_blank" rel="noopener">17763.1.180914-1434.rs5_release_CLIENT_LTSC_EVAL_x86FRE_en-us.iso</a></li>
-</ul>
-<h4 id="2-下載-SPF-檔案-Language-Patch"><a href="#2-下載-SPF-檔案-Language-Patch" class="headerlink" title="2.  下載 SPF 檔案 (Language Patch)"></a>2.  下載 SPF 檔案 (Language Patch)</h4><p><a href="https://multiup.org/project/27b404c4cdef0b7def4a9c7f0e303f3e" target="_blank" rel="noopener"><code>Password: MDL</code></a></p>
-<a id="more"></a> 
-<h4 id="3-利用-SVF-ISO-convertor-將檔案合併成完整版-ISO"><a href="#3-利用-SVF-ISO-convertor-將檔案合併成完整版-ISO" class="headerlink" title="3. 利用 SVF ISO convertor 將檔案合併成完整版 ISO"></a>3. 利用 SVF ISO convertor 將檔案合併成完整版 ISO</h4><ul>
-<li>下載 <a href="https://www.softpedia.com/get/System/Back-Up-and-Recovery/SVF-eXtractor.shtml" target="_blank" rel="noopener">svfx.exe</a>，選取 ISO &amp; SVF 並驗證</li>
-</ul>
-<img src="/2019/02/22/Windows-Win10-2019-LTSC-Eval%EF%BC%88%E8%A9%95%E4%BC%B0%E7%89%88%EF%BC%89%E7%84%A1%E7%97%9B%E8%BD%89%E6%8F%9B%E6%88%90-Full-version%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89/SVF.png" class="">
-
-
-<h1 id="修改-Register-騙過微軟升級檢測"><a href="#修改-Register-騙過微軟升級檢測" class="headerlink" title="修改 Register 騙過微軟升級檢測"></a>修改 Register 騙過微軟升級檢測</h1><p>路徑：<code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion</code></p>
-<ul>
-<li><code>Composition edition ID</code>:  EnterpriseS</li>
-<li><code>EditionID</code>: EnterpriseS</li>
-<li><code>Product name</code>: Windows 10 Enterprise LTSC 2019</li>
-</ul>
-<h1 id="掛載-Full-version-ISO-進行升級"><a href="#掛載-Full-version-ISO-進行升級" class="headerlink" title="掛載 Full version ISO 進行升級"></a>掛載 Full version ISO 進行升級</h1><p><strong>修改完 Register 後不要重開機，直接掛載 ISO 進行升級並保留資料，記得要勾選下載更新，才不會有問題</strong></p>
-<img src="/2019/02/22/Windows-Win10-2019-LTSC-Eval%EF%BC%88%E8%A9%95%E4%BC%B0%E7%89%88%EF%BC%89%E7%84%A1%E7%97%9B%E8%BD%89%E6%8F%9B%E6%88%90-Full-version%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%89/Win10_Installer.jpg" class="">
-
-
-
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="https://forums.mydigitallife.net/threads/windows-10-svf-repository.63324/page-128#post-1468363" target="_blank" rel="noopener">Windows 10 SVF Repository#2546 @Enthousiast</a></li>
-<li><a href="https://gist.github.com/CHEF-KOCH/35a857cf4a08a837958fb71e252a84da" target="_blank" rel="noopener">CHEF-KOCH/How to use svf to upgrade your Windows.txt</a></li>
-<li><a href="https://winaero.com/blog/upgrade-windows-10-evaluation-to-full-version-easily/" target="_blank" rel="noopener">Upgrade Windows 10 Evaluation to Full version easily</a></li>
-<li><a href="https://www.reddit.com/r/Piracy/comments/a6zabz/windows_10_ltsc_evaluation_activation/" target="_blank" rel="noopener">Windows 10 LTSC Evaluation - Activation</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Windows</category>
-      </categories>
-      <tags>
-        <tag>Windows</tag>
       </tags>
   </entry>
   <entry>
@@ -2164,6 +2145,25 @@ date_format: &quot;ordinal&quot;</code></pre><h2 id="新增文章"><a href="#新
         <tag>CentOS</tag>
         <tag>Zabbix</tag>
         <tag>Grafana</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[隨筆] CentOS 7 常用指令筆記</title>
+    <url>/2019/04/28/%E9%9A%A8%E7%AD%86-CentOS-7-%E5%B8%B8%E7%94%A8%E7%AD%86%E8%A8%98%E6%8C%87%E4%BB%A4/</url>
+    <content><![CDATA[<h3 id="更改-Hostname"><a href="#更改-Hostname" class="headerlink" title="更改 Hostname"></a>更改 Hostname</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hostnamectl set-hostname &lt;new_hostname&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="設定-IP"><a href="#設定-IP" class="headerlink" title="設定 IP"></a>設定 IP</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 進入設定精靈</span><br><span class="line">nmtui</span><br><span class="line"></span><br><span class="line"># 重啟 network</span><br><span class="line">systemctl restart network</span><br><span class="line"></span><br><span class="line"># 檢查設定是否正確</span><br><span class="line">ip address</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="安裝-EPEL-Repository"><a href="#安裝-EPEL-Repository" class="headerlink" title="安裝 EPEL Repository"></a>安裝 EPEL Repository</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install epel-release</span><br></pre></td></tr></table></figure>
+<h3 id="安裝-open-vm-tools"><a href="#安裝-open-vm-tools" class="headerlink" title="安裝 open-vm-tools"></a>安裝 open-vm-tools</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install open-vm-tools</span><br></pre></td></tr></table></figure>
+<h3 id="停用-SSH-root-登入"><a href="#停用-SSH-root-登入" class="headerlink" title="停用 SSH root 登入"></a>停用 SSH root 登入</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 編輯 sshd_config</span><br><span class="line">vim &#x2F;etc&#x2F;ssh&#x2F;sshd_config</span><br><span class="line"></span><br><span class="line"># 修改以下內容</span><br><span class="line">PermitRootLogin no</span><br><span class="line"></span><br><span class="line"># 重啟 sshd</span><br><span class="line">systemctl restart sshd</span><br></pre></td></tr></table></figure>
+<h3 id="yum-rollback-到安裝前的狀態"><a href="#yum-rollback-到安裝前的狀態" class="headerlink" title="yum rollback 到安裝前的狀態"></a>yum rollback 到安裝前的狀態</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 查看預計要退的版本號</span><br><span class="line">yum history</span><br><span class="line"></span><br><span class="line"># undo</span><br><span class="line">yum history undo 8</span><br></pre></td></tr></table></figure>
+<h3 id="firewall-cmd"><a href="#firewall-cmd" class="headerlink" title="firewall-cmd"></a>firewall-cmd</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 查看目前網卡套用的 Zone</span><br><span class="line">firewall-cmd --get-active-zones</span><br><span class="line"></span><br><span class="line"># 將服務或端口永久新增或移除</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --add-service&#x3D;http</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --add-port&#x3D;8080&#x2F;tcp</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --remove-service&#x3D;http</span><br><span class="line">firewall-cmd --zone&#x3D;public --permanent --remove-port&#x3D;8080&#x2F;tcp</span><br><span class="line"></span><br><span class="line"># reload 防火牆來套用新規則</span><br><span class="line">firewall-cmd --reload</span><br><span class="line"></span><br><span class="line"># 檢查設定</span><br><span class="line">firewall-cmd --list-all-zones</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>隨筆</tag>
+        <tag>CentOS</tag>
       </tags>
   </entry>
   <entry>
@@ -2272,6 +2272,37 @@ sudo ln -s ../conf.avail/64-language-selector-prefer.conf 64-language-selector-p
         <tag>elasticsearch</tag>
         <tag>踩坑</tag>
         <tag>除錯</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>[除錯] G-Suite 被擋信問題排除</title>
+    <url>/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/</url>
+    <content><![CDATA[<h1 id="除錯紀錄"><a href="#除錯紀錄" class="headerlink" title="除錯紀錄"></a>除錯紀錄</h1><p>最近公司同仁有在抱怨常常寄信到特定單位會寄丟，利用 <a href="https://toolbox.googleapps.com/apps/checkmx/" target="_blank" rel="noopener">Google CheckMX</a> 檢查發現</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SPF must allow Google servers to send mail on behalf of your domain.</span><br></pre></td></tr></table></figure>
+<img src="/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/spf-must-allow-google.png" class="" title="spf-must-allow-google">
+
+
+<p>根據<a href="https://support.google.com/a/answer/33786?hl=zh-Hant" target="_blank" rel="noopener">說明文件</a>表示，需要新增一筆 <code>SPF TXT Record</code> </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">v&#x3D;spf1 include:_spf.google.com ~all</span><br></pre></td></tr></table></figure>
+<a id="more"></a> 
+
+<p>由於我們有利用第三方 Mail Service 來寄信，可以使用 <a href="https://www.spfwizard.net/" target="_blank" rel="noopener">SPF Wizard</a> 來幫助產出正確的 <code>SPF TXT Record</code><br>在 <code>Any domains that may deliver or relay mail for this domain</code> 新增所有 Mail Service 的 Domain</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">_spf.google.com mailgun.org</span><br></pre></td></tr></table></figure>
+<img src="/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/spf-wizard.png" class="" title="spf-wizard">
+
+
+<p>到 DNS Server 更新 <code>SPF TXT Record</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">v&#x3D;spf1 include:_spf.google.com include:mailgun.org ~all</span><br></pre></td></tr></table></figure>
+
+<p>回到 <a href="https://toolbox.googleapps.com/apps/checkmx/" target="_blank" rel="noopener">Google CheckMX</a> 檢查，通過測試～～</p>
+<img src="/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/checkmx-successes.png" class="" title="checkmx-successes">
+]]></content>
+      <categories>
+        <category>MIS</category>
+      </categories>
+      <tags>
+        <tag>除錯</tag>
+        <tag>G-Suite</tag>
       </tags>
   </entry>
   <entry>
@@ -2405,34 +2436,41 @@ sudo ln -s ../conf.avail/64-language-selector-prefer.conf 64-language-selector-p
       </tags>
   </entry>
   <entry>
-    <title>[除錯] G-Suite 被擋信問題排除</title>
-    <url>/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/</url>
-    <content><![CDATA[<h1 id="除錯紀錄"><a href="#除錯紀錄" class="headerlink" title="除錯紀錄"></a>除錯紀錄</h1><p>最近公司同仁有在抱怨常常寄信到特定單位會寄丟，利用 <a href="https://toolbox.googleapps.com/apps/checkmx/" target="_blank" rel="noopener">Google CheckMX</a> 檢查發現</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SPF must allow Google servers to send mail on behalf of your domain.</span><br></pre></td></tr></table></figure>
-<img src="/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/spf-must-allow-google.png" class="" title="spf-must-allow-google">
-
-
-<p>根據<a href="https://support.google.com/a/answer/33786?hl=zh-Hant" target="_blank" rel="noopener">說明文件</a>表示，需要新增一筆 <code>SPF TXT Record</code> </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">v&#x3D;spf1 include:_spf.google.com ~all</span><br></pre></td></tr></table></figure>
+    <title>[Kubernetes] 在 GKE 上同時啟用 internal 與 external 兩種 nginx ingress controller</title>
+    <url>/2020/05/17/Kubernetes-%E5%9C%A8-GKE-%E4%B8%8A%E5%90%8C%E6%99%82%E5%95%9F%E7%94%A8-internal-%E8%88%87-external-%E5%85%A9%E7%A8%AE-nginx-ingress-controller/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>GKE 上原生的 Ingress Controller 限制非常多，需要設定 <code>ServiceType=NodePort</code> 才能使用，<br>於是我選擇 <a href="https://github.com/kubernetes/ingress-nginx" target="_blank" rel="noopener">kubernetes/ingress-nginx</a> 來作為 ingress 使用，不要和我一樣一開始裝成 <a href="https://github.com/nginxinc/kubernetes-ingress" target="_blank" rel="noopener">nginxinc/kubernetes-ingress</a> 的 Ingress Controller XD</p>
+<p>這張圖是 Kube Ingress Controller 在 GKE 上的架構，除了 external 以外我還需要 internal 的 ingress</p>
+<img src="/2020/05/17/Kubernetes-%E5%9C%A8-GKE-%E4%B8%8A%E5%90%8C%E6%99%82%E5%95%9F%E7%94%A8-internal-%E8%88%87-external-%E5%85%A9%E7%A8%AE-nginx-ingress-controller/gke-ingress.png" class="" title="gke-ingress">
 <a id="more"></a> 
+<p>所以我總共會起兩個 Ingress Controller，Ingress Class 分別是 <code>nginx</code> 與 <code>nginx-internal</code>，<br>只要在 Ingress Controller 的 Service annotations 加上 <code>cloud.google.com/load-balancer-type: &quot;Internal&quot;</code>，<br>GKE 就會起 Internal Loadbalancer 給你的 ingress controller，詳細可以參考以下步驟來安裝</p>
+<h1 id="安裝步驟"><a href="#安裝步驟" class="headerlink" title="安裝步驟"></a>安裝步驟</h1><ol>
+<li>下載 kube-ingress 的 helm chart <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm repo add ingress-nginx https:&#x2F;&#x2F;kubernetes.github.io&#x2F;ingress-nginx</span><br><span class="line">helm repo update</span><br><span class="line">helm fetch ingress-nginx&#x2F;ingress-nginx</span><br><span class="line">tar zxvf ingress-nginx-2.1.0.tgz</span><br></pre></td></tr></table></figure></li>
+<li>安裝 external kube-ingress，根據自己需求修改 default value <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm upgrade --install ingress-nginx --namespace default ingress-nginx&#x2F;</span><br></pre></td></tr></table></figure></li>
+<li>新建一個叫 <code>internal-values.yml</code> 的文件，放到 <code>ingress-nginx/</code> 底下 <figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">controller:</span></span><br><span class="line">  <span class="attr">ingressClass:</span> <span class="string">nginx-internal</span></span><br><span class="line"><span class="attr">service:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">cloud.google.com/load-balancer-type:</span> <span class="string">"Internal"</span></span><br></pre></td></tr></table></figure></li>
+<li>安裝 internal kube-ingress <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm upgrade --install ingress-nginx-internal --namespace default ingress-nginx&#x2F; -f internal-values.yml</span><br></pre></td></tr></table></figure></li>
+<li>檢查 ingress controller 的 LoadBalancer 是否如預期配到需要的 IP <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># relk @ relk-Inspiron-7375 in ~ [0:35:09] </span><br><span class="line">$ k get service</span><br><span class="line">NAME                                          TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)                      AGE</span><br><span class="line">ingress-nginx-controller                      LoadBalancer   10.202.0.24     35.***.***.164   80:30499&#x2F;TCP,443:31137&#x2F;TCP   32h</span><br><span class="line">ingress-nginx-internal-controller             LoadBalancer   10.202.15.138   10.200.***.***   80:32401&#x2F;TCP,443:32427&#x2F;TCP   32h</span><br></pre></td></tr></table></figure>
 
-<p>由於我們有利用第三方 Mail Service 來寄信，可以使用 <a href="https://www.spfwizard.net/" target="_blank" rel="noopener">SPF Wizard</a> 來幫助產出正確的 <code>SPF TXT Record</code><br>在 <code>Any domains that may deliver or relay mail for this domain</code> 新增所有 Mail Service 的 Domain</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">_spf.google.com mailgun.org</span><br></pre></td></tr></table></figure>
-<img src="/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/spf-wizard.png" class="" title="spf-wizard">
+</li>
+</ol>
+<h1 id="測試"><a href="#測試" class="headerlink" title="測試"></a>測試</h1><ol>
+<li>宣告新的 ingress，在 annotations 下指定你要哪種 ingress class (Repo: <a href="https://github.com/Downager/gke-kube-ingress-demo" target="_blank" rel="noopener">gke-kube-ingress-demo</a>) <figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># External Ingress</span></span><br><span class="line"><span class="attr">kubernetes.io/ingress.class:</span> <span class="string">nginx</span></span><br><span class="line"><span class="comment"># Internal Ingress</span></span><br><span class="line"><span class="attr">kubernetes.io/ingress.class:</span> <span class="string">nginx-internal</span></span><br></pre></td></tr></table></figure></li>
+<li>檢查結果 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># relk @ relk-Inspiron-7375 in ~ [0:59:35] </span><br><span class="line">$ kgi</span><br><span class="line">NAME                HOSTS                           ADDRESS          PORTS     AGE</span><br><span class="line">demo-app            demo-app.example.com            35.***.***.164   80        35s</span><br><span class="line">demo-app-internal   demo-app-internal.example.com   10.200.***.***   80        29s</span><br></pre></td></tr></table></figure>
 
-
-<p>到 DNS Server 更新 <code>SPF TXT Record</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">v&#x3D;spf1 include:_spf.google.com include:mailgun.org ~all</span><br></pre></td></tr></table></figure>
-
-<p>回到 <a href="https://toolbox.googleapps.com/apps/checkmx/" target="_blank" rel="noopener">Google CheckMX</a> 檢查，通過測試～～</p>
-<img src="/2020/05/13/%E9%99%A4%E9%8C%AF-G-Suite-%E8%A2%AB%E6%93%8B%E4%BF%A1%E5%95%8F%E9%A1%8C%E6%8E%92%E9%99%A4/checkmx-successes.png" class="" title="checkmx-successes">
+</li>
+</ol>
+<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
+<li><a href="https://www.infoq.cn/article/FwOkvi6zuxDSsiALsaHz" target="_blank" rel="noopener">GKE 多种 Ingress 的实现</a></li>
+<li><a href="https://cloud.google.com/community/tutorials/nginx-ingress-gke" target="_blank" rel="noopener">Ingress with NGINX controller on Google Kubernetes Engine</a></li>
+</ul>
 ]]></content>
       <categories>
-        <category>MIS</category>
+        <category>Cloud-Native</category>
       </categories>
       <tags>
-        <tag>除錯</tag>
-        <tag>G-Suite</tag>
+        <tag>kubernetes</tag>
+        <tag>ingress</tag>
+        <tag>nginx</tag>
+        <tag>GKE</tag>
       </tags>
   </entry>
   <entry>
@@ -2488,47 +2526,9 @@ sudo ln -s ../conf.avail/64-language-selector-prefer.conf 64-language-selector-p
       <tags>
         <tag>kubernetes</tag>
         <tag>elasticsearch</tag>
+        <tag>ingress</tag>
+        <tag>nginx</tag>
         <tag>filebeat</tag>
-        <tag>ingress</tag>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>[Kubernetes] 在 GKE 上同時啟用 internal 與 external 兩種 nginx ingress controller</title>
-    <url>/2020/05/17/Kubernetes-%E5%9C%A8-GKE-%E4%B8%8A%E5%90%8C%E6%99%82%E5%95%9F%E7%94%A8-internal-%E8%88%87-external-%E5%85%A9%E7%A8%AE-nginx-ingress-controller/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>GKE 上原生的 Ingress Controller 限制非常多，需要設定 <code>ServiceType=NodePort</code> 才能使用，<br>於是我選擇 <a href="https://github.com/kubernetes/ingress-nginx" target="_blank" rel="noopener">kubernetes/ingress-nginx</a> 來作為 ingress 使用，不要和我一樣一開始裝成 <a href="https://github.com/nginxinc/kubernetes-ingress" target="_blank" rel="noopener">nginxinc/kubernetes-ingress</a> 的 Ingress Controller XD</p>
-<p>這張圖是 Kube Ingress Controller 在 GKE 上的架構，除了 external 以外我還需要 internal 的 ingress</p>
-<img src="/2020/05/17/Kubernetes-%E5%9C%A8-GKE-%E4%B8%8A%E5%90%8C%E6%99%82%E5%95%9F%E7%94%A8-internal-%E8%88%87-external-%E5%85%A9%E7%A8%AE-nginx-ingress-controller/gke-ingress.png" class="" title="gke-ingress">
-<a id="more"></a> 
-<p>所以我總共會起兩個 Ingress Controller，Ingress Class 分別是 <code>nginx</code> 與 <code>nginx-internal</code>，<br>只要在 Ingress Controller 的 Service annotations 加上 <code>cloud.google.com/load-balancer-type: &quot;Internal&quot;</code>，<br>GKE 就會起 Internal Loadbalancer 給你的 ingress controller，詳細可以參考以下步驟來安裝</p>
-<h1 id="安裝步驟"><a href="#安裝步驟" class="headerlink" title="安裝步驟"></a>安裝步驟</h1><ol>
-<li>下載 kube-ingress 的 helm chart <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm repo add ingress-nginx https:&#x2F;&#x2F;kubernetes.github.io&#x2F;ingress-nginx</span><br><span class="line">helm repo update</span><br><span class="line">helm fetch ingress-nginx&#x2F;ingress-nginx</span><br><span class="line">tar zxvf ingress-nginx-2.1.0.tgz</span><br></pre></td></tr></table></figure></li>
-<li>安裝 external kube-ingress，根據自己需求修改 default value <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm upgrade --install ingress-nginx --namespace default ingress-nginx&#x2F;</span><br></pre></td></tr></table></figure></li>
-<li>新建一個叫 <code>internal-values.yml</code> 的文件，放到 <code>ingress-nginx/</code> 底下 <figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">controller:</span></span><br><span class="line">  <span class="attr">ingressClass:</span> <span class="string">nginx-internal</span></span><br><span class="line"><span class="attr">service:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">cloud.google.com/load-balancer-type:</span> <span class="string">"Internal"</span></span><br></pre></td></tr></table></figure></li>
-<li>安裝 internal kube-ingress <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">helm upgrade --install ingress-nginx-internal --namespace default ingress-nginx&#x2F; -f internal-values.yml</span><br></pre></td></tr></table></figure></li>
-<li>檢查 ingress controller 的 LoadBalancer 是否如預期配到需要的 IP <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># relk @ relk-Inspiron-7375 in ~ [0:35:09] </span><br><span class="line">$ k get service</span><br><span class="line">NAME                                          TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)                      AGE</span><br><span class="line">ingress-nginx-controller                      LoadBalancer   10.202.0.24     35.***.***.164   80:30499&#x2F;TCP,443:31137&#x2F;TCP   32h</span><br><span class="line">ingress-nginx-internal-controller             LoadBalancer   10.202.15.138   10.200.***.***   80:32401&#x2F;TCP,443:32427&#x2F;TCP   32h</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h1 id="測試"><a href="#測試" class="headerlink" title="測試"></a>測試</h1><ol>
-<li>宣告新的 ingress，在 annotations 下指定你要哪種 ingress class (Repo: <a href="https://github.com/Downager/gke-kube-ingress-demo" target="_blank" rel="noopener">gke-kube-ingress-demo</a>) <figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># External Ingress</span></span><br><span class="line"><span class="attr">kubernetes.io/ingress.class:</span> <span class="string">nginx</span></span><br><span class="line"><span class="comment"># Internal Ingress</span></span><br><span class="line"><span class="attr">kubernetes.io/ingress.class:</span> <span class="string">nginx-internal</span></span><br></pre></td></tr></table></figure></li>
-<li>檢查結果 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># relk @ relk-Inspiron-7375 in ~ [0:59:35] </span><br><span class="line">$ kgi</span><br><span class="line">NAME                HOSTS                           ADDRESS          PORTS     AGE</span><br><span class="line">demo-app            demo-app.example.com            35.***.***.164   80        35s</span><br><span class="line">demo-app-internal   demo-app-internal.example.com   10.200.***.***   80        29s</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h1 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h1><ul>
-<li><a href="https://www.infoq.cn/article/FwOkvi6zuxDSsiALsaHz" target="_blank" rel="noopener">GKE 多种 Ingress 的实现</a></li>
-<li><a href="https://cloud.google.com/community/tutorials/nginx-ingress-gke" target="_blank" rel="noopener">Ingress with NGINX controller on Google Kubernetes Engine</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Cloud-Native</category>
-      </categories>
-      <tags>
-        <tag>kubernetes</tag>
-        <tag>ingress</tag>
-        <tag>nginx</tag>
-        <tag>GKE</tag>
       </tags>
   </entry>
   <entry>
